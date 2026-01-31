@@ -7,6 +7,7 @@ interface HomeProps {
 }
 
 export function Home({ onNavigate }: HomeProps) {
+  const coins = useGameStore((state) => state.coins)
   const savedCoins = useGameStore((state) => state.savedCoins)
   const completedLessons = useGameStore((state) => state.completedLessons)
   const ownedItems = useGameStore((state) => state.ownedItems)
@@ -65,7 +66,7 @@ export function Home({ onNavigate }: HomeProps) {
         </button>
 
         <button
-          onClick={() => onNavigate('ar')}
+          onClick={() => window.location.href = '/webxr-ar.html'}
           className="flex-1 bg-[#C3B1E1] hover:bg-[#b2a0d0] border-b-4 border-[#a18fbf] rounded-2xl p-4 flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95 group"
         >
           <div className="bg-white/30 p-1.5 rounded-full group-hover:scale-110 transition-transform">

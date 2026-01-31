@@ -29,10 +29,6 @@ function App() {
     }
   }
 
-  if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />
-  }
-
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f9f8f6' }}>
       {/* Header with coins */}

@@ -94,11 +94,14 @@
       background: #6b7280;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 12px 24px;
       border-radius: 50px;
-      font-size: 0.8rem;
+      font-size: 1rem;
+      font-weight: bold;
       pointer-events: auto;
       display: none;
+      min-width: 120px;
+      min-height: 48px;
     }
     #mode-toggle {
       position: absolute;
@@ -294,6 +297,7 @@
     let selectedObject = null; // Currently selected placed object for editing
     let isDragging = false;
     let isPlacing = false; // Guard against double placement
+    let uiCooldown = false; // Prevent placement right after UI interaction
     
     // Three.js
     let scene, camera, renderer, reticle, loader;
@@ -425,6 +429,9 @@
     }
 
     function onSelect(event) {
+      // Skip if UI was just clicked
+      if (uiCooldown) return;
+      
       if (mode === 'place') {
         // Place mode: place new objects
         if (reticle.visible && selectedItem) {
@@ -598,6 +605,9 @@
     }
 
     function clearAll() {
+      uiCooldown = true;
+      setTimeout(() => { uiCooldown = false; }, 300);
+      
       placedObjects.forEach(obj => scene.remove(obj.model));
       placedObjects = [];
       selectedObject = null;
@@ -650,10 +660,10 @@
     // Event listeners
     startBtn.addEventListener('click', startAR);
     exitBtn.addEventListener('click', () => currentSession?.end());
-    clearBtn.addEventListener('click', clearAll);
-    modeToggle.addEventListener('click', toggleMode);
-    scaleUpBtn.addEventListener('click', () => scaleSelected(1.2));
-    scaleDownBtn.addEventListener('click', () => scaleSelected(0.8));
+    clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearAll(); });
+    modeToggle.addEventListener('click', (e) => { e.stopPropagation(); toggleMode(); });
+    scaleUpBtn.addEventListener('click', (e) => { e.stopPropagation(); scaleSelected(1.2); });
+    scaleDownBtn.addEventListener('click', (e) => { e.stopPropagation(); scaleSelected(0.8); });
 
     inventoryItems.forEach(item => {
       item.addEventListener('click', () => {
