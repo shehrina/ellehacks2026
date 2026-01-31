@@ -58,6 +58,7 @@
   <p>Tap the AR button (cube icon) in the corner to place in your room!</p>
   
   <div class="model-container">
+    <h3 style="padding: 12px 16px; margin: 0; background: #f0f0f0;">🪑 Armchair</h3>
     <model-viewer
       src="/models/armchair-scaled.glb"
       alt="Cozy Armchair"
@@ -65,12 +66,28 @@
       ar-modes="webxr scene-viewer quick-look"
       ar-scale="fixed"
       ar-placement="floor"
-      scale="0.5 0.5 0.5"
       camera-controls
       touch-action="pan-y"
       shadow-intensity="1"
       auto-rotate
       camera-orbit="45deg 55deg 2.5m"
+    >
+    </model-viewer>
+  </div>
+
+  <div class="model-container" style="margin-top: 20px;">
+    <h3 style="padding: 12px 16px; margin: 0; background: #f0f0f0;">🐱 Toy Cat</h3>
+    <model-viewer
+      src="/models/toy-cat.glb"
+      alt="Toy Cat"
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      ar-scale="fixed"
+      ar-placement="floor"
+      camera-controls
+      touch-action="pan-y"
+      shadow-intensity="1"
+      auto-rotate
     >
     </model-viewer>
   </div>
