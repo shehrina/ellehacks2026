@@ -1,28 +1,53 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { Lesson } from '../data/lessons'
 import { useGameStore } from '../store/gameStore'
+import { CoinAnimation } from './CoinAnimation'
 
 interface LessonCardProps {
   lesson: Lesson
   onComplete: () => void
 }
 
-type LessonState = 'story' | 'feedback' | 'complete'
+type LessonState = 'story' | 'feedback' | 'complete' | 'animating'
 
 export function LessonCard({ lesson, onComplete }: LessonCardProps) {
   const [state, setState] = useState<LessonState>('story')
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null)
+  const [showCoinAnimation, setShowCoinAnimation] = useState(false)
+  const [coinStartPos, setCoinStartPos] = useState({ x: 0, y: 0 })
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([])
   const addCoins = useGameStore((s) => s.addCoins)
   const completeLesson = useGameStore((s) => s.completeLesson)
 
-  const handleChoice = (choiceIndex: number) => {
+  const handleChoice = (choiceIndex: number, buttonElement: HTMLButtonElement | null) => {
+    const choice = lesson.choices[choiceIndex]
     setSelectedChoice(choiceIndex)
+    
+    if (choice.isCorrect && buttonElement) {
+      // Get button position for coin animation
+      const rect = buttonElement.getBoundingClientRect()
+      setCoinStartPos({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      })
+      setShowCoinAnimation(true)
+      setState('animating')
+    } else {
+      setState('feedback')
+    }
+  }
+  
+  const handleCoinAnimationComplete = () => {
+    setShowCoinAnimation(false)
+    addCoins(lesson.coinReward)
     setState('feedback')
   }
 
   const handleContinue = () => {
-    // Award coins regardless of choice (they learn either way)
-    addCoins(lesson.coinReward)
+    // Award coins if not already awarded (for incorrect answers)
+    if (selectedChoice !== null && !lesson.choices[selectedChoice].isCorrect) {
+      addCoins(lesson.coinReward)
+    }
     completeLesson(lesson.id)
     setState('complete')
   }
@@ -51,7 +76,7 @@ export function LessonCard({ lesson, onComplete }: LessonCardProps) {
   if (state === 'feedback' && choice) {
     return (
       <div className="bg-white rounded-2xl p-6 shadow-lg">
-        <div className={`text-5xl mb-4 text-center ${choice.isCorrect ? '' : ''}`}>
+        <div className="text-5xl mb-4 text-center">
           {choice.isCorrect ? '⭐' : '🤔'}
         </div>
         <p className="text-gray-700 text-lg mb-6">{choice.feedback}</p>
@@ -65,6 +90,38 @@ export function LessonCard({ lesson, onComplete }: LessonCardProps) {
     )
   }
 
+  if (state === 'animating' && showCoinAnimation) {
+    return (
+      <>
+        <div className="bg-white rounded-2xl p-6 shadow-lg opacity-50 pointer-events-none">
+          <div className="text-4xl mb-4 text-center">📖</div>
+          <p className="text-gray-700 text-lg mb-6 leading-relaxed">{lesson.story}</p>
+          <div className="space-y-3">
+            {lesson.choices.map((choice, index) => (
+              <button
+                key={index}
+                className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                  index === selectedChoice && choice.isCorrect
+                    ? 'border-green-400 bg-green-50'
+                    : 'border-gray-200'
+                }`}
+              >
+                <span className="font-medium">{choice.text}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <CoinAnimation
+          startX={coinStartPos.x}
+          startY={coinStartPos.y}
+          targetX={window.innerWidth - 100}
+          targetY={50}
+          onComplete={handleCoinAnimationComplete}
+        />
+      </>
+    )
+  }
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg">
       <div className="text-4xl mb-4 text-center">📖</div>
@@ -73,7 +130,8 @@ export function LessonCard({ lesson, onComplete }: LessonCardProps) {
         {lesson.choices.map((choice, index) => (
           <button
             key={index}
-            onClick={() => handleChoice(index)}
+            ref={(el) => (buttonRefs.current[index] = el)}
+            onClick={() => handleChoice(index, buttonRefs.current[index])}
             className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all active:scale-98"
           >
             <span className="font-medium">{choice.text}</span>

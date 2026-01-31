@@ -9,7 +9,6 @@ interface HomeProps {
 }
 
 export function Home({ onNavigate }: HomeProps) {
-  const coins = useGameStore((state) => state.coins)
   const savedCoins = useGameStore((state) => state.savedCoins)
   const completedLessons = useGameStore((state) => state.completedLessons)
   const ownedItems = useGameStore((state) => state.ownedItems)
@@ -19,7 +18,7 @@ export function Home({ onNavigate }: HomeProps) {
   ).length
 
   const getLessonDescription = () => {
-    if (availableLessons === 0) return 'All caught up! Great work! 🎉'
+    if (availableLessons === 0) return 'All caught up! Great work!'
     const plural = availableLessons === 1 ? 'lesson' : 'lessons'
     return `${availableLessons} ${plural} waiting for you`
   }
@@ -34,7 +33,9 @@ export function Home({ onNavigate }: HomeProps) {
     <div className="p-6 pb-24 max-w-2xl mx-auto">
       {/* Hero Section */}
       <div className="text-center mb-12 mt-8">
-        <div className="inline-block mb-4 text-6xl animate-bounce-slow">🪙</div>
+        <div className="inline-block mb-4 animate-bounce-slow">
+          <img src="/icons/coin.webp" alt="coin" className="w-16 h-16" />
+        </div>
         <h1 className="text-4xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
           Learn Money,<br />
           <span style={{ color: 'var(--dark-sage)' }}>Play Smart</span>
@@ -44,20 +45,13 @@ export function Home({ onNavigate }: HomeProps) {
         </p>
       </div>
 
-      {/* Wallet & Piggy Bank Cards */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <StatCard
-          icon="👛"
-          label="Wallet"
-          value={coins}
-          sublabel="ready to spend"
-          backgroundColor="var(--sage-green)"
-        />
+      {/* Piggy Bank Card */}
+      <div className="mb-8">
         <StatCard
           icon="🐷"
           label="Piggy Bank"
           value={savedCoins}
-          sublabel="growing safely"
+          sublabel="your savings"
           backgroundColor="var(--soft-lavender)"
         />
       </div>
@@ -133,11 +127,14 @@ export function Home({ onNavigate }: HomeProps) {
           {/* Total Wealth */}
           <div className="flex justify-between items-center pt-3 border-t" style={{ borderColor: '#e5e5e5' }}>
             <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-              Total Wealth
+              Total Savings
             </span>
-            <span className="text-lg font-bold" style={{ color: 'var(--dark-sage)' }}>
-              {coins + savedCoins} 🪙
-            </span>
+            <div className="flex items-center gap-1">
+              <span className="text-lg font-bold" style={{ color: 'var(--dark-sage)' }}>
+                {savedCoins}
+              </span>
+              <img src="/icons/coin.webp" alt="coin" className="w-5 h-5" />
+            </div>
           </div>
         </div>
       </Card>

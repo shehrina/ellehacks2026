@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { lessons } from '../data/lessons'
 import { useGameStore } from '../store/gameStore'
 import { LessonCard } from './LessonCard'
+import { FaBook, FaGraduationCap, FaCheckCircle } from 'react-icons/fa'
 
 export function Lessons() {
   const completedLessons = useGameStore((state) => state.completedLessons)
@@ -35,12 +36,17 @@ export function Lessons() {
 
   return (
     <div className="p-4 pb-24">
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">📚 Learn & Earn</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+        <FaBook />
+        Learn & Earn
+      </h2>
       <p className="text-gray-500 mb-6">Complete lessons to earn coins!</p>
 
       {availableLessons.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-6xl mb-4">🎓</div>
+          <div className="mb-4 flex justify-center">
+            <FaGraduationCap className="text-6xl text-blue-500" />
+          </div>
           <h3 className="text-xl font-bold text-gray-800 mb-2">
             All lessons completed!
           </h3>
@@ -57,7 +63,7 @@ export function Lessons() {
               className="w-full bg-white rounded-2xl p-4 shadow-lg text-left hover:shadow-xl transition-all active:scale-98 border-2 border-transparent hover:border-blue-200"
             >
               <div className="flex items-center gap-4">
-                <div className="text-4xl">📖</div>
+                <FaBook className="text-4xl text-blue-500" />
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-800 mb-1">
                     Lesson {completedLessons.length + index + 1}
@@ -66,10 +72,11 @@ export function Lessons() {
                     {lesson.story.substring(0, 60)}...
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex items-center gap-1">
                   <span className="text-yellow-600 font-bold">
-                    +{lesson.coinReward} 🪙
+                    +{lesson.coinReward}
                   </span>
+                  <img src="/icons/coin.webp" alt="coin" className="w-5 h-5" />
                 </div>
               </div>
             </button>
@@ -80,7 +87,10 @@ export function Lessons() {
       {/* Completed lessons */}
       {completedLessons.length > 0 && (
         <div className="mt-8">
-          <h3 className="text-lg font-bold text-gray-600 mb-3">✅ Completed</h3>
+          <h3 className="text-lg font-bold text-gray-600 mb-3 flex items-center gap-2">
+            <FaCheckCircle className="text-green-500" />
+            Completed
+          </h3>
           <div className="space-y-2">
             {lessons
               .filter((l) => completedLessons.includes(l.id))
@@ -89,7 +99,7 @@ export function Lessons() {
                   key={lesson.id}
                   className="bg-gray-100 rounded-xl p-3 flex items-center gap-3 opacity-60"
                 >
-                  <span className="text-2xl">✅</span>
+                  <FaCheckCircle className="text-green-500" />
                   <span className="text-gray-600">{lesson.principle}</span>
                 </div>
               ))}

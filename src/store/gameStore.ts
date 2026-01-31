@@ -17,15 +17,10 @@ export interface OwnedItem {
 }
 
 interface GameState {
-  // Coins
-  coins: number
+  // Piggy Bank (all coins stored here)
+  savedCoins: number
   addCoins: (amount: number) => void
   spendCoins: (amount: number) => boolean
-
-  // Piggy Bank (savings)
-  savedCoins: number
-  saveCoins: (amount: number) => void
-  withdrawCoins: (amount: number) => boolean
   growSavings: () => void // Simulates interest
 
   // Inventory
@@ -38,42 +33,17 @@ interface GameState {
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
-  // Start with some coins for demo
-  coins: 50,
+  // Piggy Bank - all coins stored here
+  savedCoins: 50, // Start with some coins for demo
   
   addCoins: (amount) => set((state) => ({ 
-    coins: state.coins + amount 
+    savedCoins: state.savedCoins + amount 
   })),
   
   spendCoins: (amount) => {
     const state = get()
-    if (state.coins >= amount) {
-      set({ coins: state.coins - amount })
-      return true
-    }
-    return false
-  },
-
-  // Piggy Bank
-  savedCoins: 0,
-  
-  saveCoins: (amount) => {
-    const state = get()
-    if (state.coins >= amount) {
-      set({ 
-        coins: state.coins - amount,
-        savedCoins: state.savedCoins + amount 
-      })
-    }
-  },
-  
-  withdrawCoins: (amount) => {
-    const state = get()
     if (state.savedCoins >= amount) {
-      set({ 
-        savedCoins: state.savedCoins - amount,
-        coins: state.coins + amount 
-      })
+      set({ savedCoins: state.savedCoins - amount })
       return true
     }
     return false
@@ -89,9 +59,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   
   buyItem: (item) => {
     const state = get()
-    if (state.coins >= item.price) {
+    if (state.savedCoins >= item.price) {
       set({ 
-        coins: state.coins - item.price,
+        savedCoins: state.savedCoins - item.price,
         ownedItems: [...state.ownedItems, { 
           id: `${item.id}-${Date.now()}`, 
           itemId: item.id 

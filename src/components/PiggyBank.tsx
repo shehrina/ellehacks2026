@@ -2,26 +2,10 @@ import { useState } from 'react'
 import { useGameStore } from '../store/gameStore'
 
 export function PiggyBank() {
-  const coins = useGameStore((state) => state.coins)
   const savedCoins = useGameStore((state) => state.savedCoins)
-  const saveCoins = useGameStore((state) => state.saveCoins)
-  const withdrawCoins = useGameStore((state) => state.withdrawCoins)
   const growSavings = useGameStore((state) => state.growSavings)
   
-  const [amount, setAmount] = useState(5)
   const [showGrowAnimation, setShowGrowAnimation] = useState(false)
-
-  const handleSave = () => {
-    if (coins >= amount) {
-      saveCoins(amount)
-    }
-  }
-
-  const handleWithdraw = () => {
-    if (savedCoins >= amount) {
-      withdrawCoins(amount)
-    }
-  }
 
   const handleFastForward = () => {
     setShowGrowAnimation(true)
@@ -42,57 +26,6 @@ export function PiggyBank() {
         <p className="text-pink-600 text-sm">
           Money grows when you don't touch it!
         </p>
-      </div>
-
-      {/* Amount selector */}
-      <div className="bg-white rounded-2xl p-4 shadow-lg mb-4">
-        <label className="block text-gray-600 text-sm mb-2">Amount</label>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setAmount(Math.max(1, amount - 5))}
-            className="w-10 h-10 rounded-full bg-gray-100 font-bold text-gray-600 hover:bg-gray-200"
-          >
-            -
-          </button>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 1))}
-            className="flex-1 text-center text-2xl font-bold text-gray-800 border-none outline-none"
-          />
-          <button
-            onClick={() => setAmount(amount + 5)}
-            className="w-10 h-10 rounded-full bg-gray-100 font-bold text-gray-600 hover:bg-gray-200"
-          >
-            +
-          </button>
-        </div>
-      </div>
-
-      {/* Action buttons */}
-      <div className="flex gap-3 mb-6">
-        <button
-          onClick={handleSave}
-          disabled={coins < amount}
-          className={`flex-1 py-3 rounded-full font-semibold transition-all ${
-            coins >= amount
-              ? 'bg-pink-500 text-white hover:bg-pink-600 active:scale-95'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          Save 💰
-        </button>
-        <button
-          onClick={handleWithdraw}
-          disabled={savedCoins < amount}
-          className={`flex-1 py-3 rounded-full font-semibold transition-all ${
-            savedCoins >= amount
-              ? 'bg-yellow-500 text-white hover:bg-yellow-600 active:scale-95'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          Withdraw 🪙
-        </button>
       </div>
 
       {/* Fast forward button (for demo) */}

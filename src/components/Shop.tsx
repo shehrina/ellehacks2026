@@ -2,6 +2,8 @@ import { useGameStore } from '../store/gameStore'
 import type { ShopItem } from '../store/gameStore'
 import { shopItems } from '../data/shopItems'
 import { ModelViewer } from './ModelViewer'
+import { FaShoppingBag, FaArrowUp, FaBox } from 'react-icons/fa'
+import { MdStar } from 'react-icons/md'
 
 const categoryColors = {
   want: 'bg-purple-100 text-purple-700',
@@ -10,9 +12,9 @@ const categoryColors = {
 }
 
 const categoryLabels = {
-  want: '✨ Want',
-  need: '📦 Need',
-  upgrade: '⬆️ Upgrade',
+  want: { icon: <MdStar className="inline" />, text: 'Want' },
+  need: { icon: <FaBox className="inline" />, text: 'Need' },
+  upgrade: { icon: <FaArrowUp className="inline" />, text: 'Upgrade' },
 }
 
 interface ShopItemCardProps {
@@ -20,9 +22,9 @@ interface ShopItemCardProps {
 }
 
 function ShopItemCard({ item }: ShopItemCardProps) {
-  const coins = useGameStore((state) => state.coins)
+  const savedCoins = useGameStore((state) => state.savedCoins)
   const buyItem = useGameStore((state) => state.buyItem)
-  const canAfford = coins >= item.price
+  const canAfford = savedCoins >= item.price
 
   const handleBuy = () => {
     const success = buyItem(item)
@@ -43,14 +45,15 @@ function ShopItemCard({ item }: ShopItemCardProps) {
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-bold text-gray-800">{item.name}</h3>
-          <span className={`text-xs px-2 py-1 rounded-full ${categoryColors[item.category]}`}>
-            {categoryLabels[item.category]}
+          <span className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${categoryColors[item.category]}`}>
+            {categoryLabels[item.category].icon}
+            {categoryLabels[item.category].text}
           </span>
         </div>
         
         <div className="flex justify-between items-center mt-4">
           <div className="flex items-center gap-1">
-            <span className="text-xl">🪙</span>
+            <img src="/icons/coin.webp" alt="coin" className="w-5 h-5" />
             <span className="font-bold text-lg">{item.price}</span>
           </div>
           
@@ -74,7 +77,10 @@ function ShopItemCard({ item }: ShopItemCardProps) {
 export function Shop() {
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">🛍️ Shop</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <FaShoppingBag />
+        Shop
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {shopItems.map((item) => (
           <ShopItemCard key={item.id} item={item} />
