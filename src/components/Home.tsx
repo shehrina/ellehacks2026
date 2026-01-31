@@ -78,7 +78,7 @@ export function Home({ onNavigate }: HomeProps) {
           description={getItemsDescription()}
           backgroundColor="var(--soft-peach)"
           arrowColor="var(--deep-lavender)"
-          onClick={() => onNavigate('ar')}
+          onClick={() => window.location.href = '/webxr-ar.html'}
         />
         <ActionCard
           icon="🛍️"
