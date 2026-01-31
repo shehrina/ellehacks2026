@@ -1,4 +1,4 @@
-import { ShopItem } from '../store/gameStore'
+import type { ShopItem } from '../store/gameStore'
 
 export const shopItems: ShopItem[] = [
   {

@@ -1,5 +1,8 @@
 import { useGameStore } from '../store/gameStore'
 import { lessons } from '../data/lessons'
+import { StatCard } from './StatCard'
+import { ActionCard } from './ActionCard'
+import { Card } from './Card'
 
 interface HomeProps {
   onNavigate: (tab: string) => void
@@ -15,77 +18,129 @@ export function Home({ onNavigate }: HomeProps) {
     (l) => !completedLessons.includes(l.id)
   ).length
 
+  const getLessonDescription = () => {
+    if (availableLessons === 0) return 'All caught up! Great work! 🎉'
+    const plural = availableLessons === 1 ? 'lesson' : 'lessons'
+    return `${availableLessons} ${plural} waiting for you`
+  }
+
+  const getItemsDescription = () => {
+    if (ownedItems.length === 0) return 'Start with a lesson to unlock items'
+    const plural = ownedItems.length === 1 ? 'item' : 'items'
+    return `${ownedItems.length} ${plural} ready to place`
+  }
+
   return (
-    <div className="p-4 pb-24">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          🪙 CoinQuest
+    <div className="p-6 pb-24 max-w-2xl mx-auto">
+      {/* Hero Section */}
+      <div className="text-center mb-12 mt-8">
+        <div className="inline-block mb-4 text-6xl animate-bounce-slow">🪙</div>
+        <h1 className="text-4xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
+          Learn Money,<br />
+          <span style={{ color: 'var(--dark-sage)' }}>Play Smart</span>
         </h1>
-        <p className="text-gray-500">Save it. Spend it. See it.</p>
+        <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+          Save it. Spend it. See it grow.
+        </p>
       </div>
 
-      {/* Coin Summary */}
-      <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 mb-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-yellow-700 mb-1">Your Wallet</p>
-            <p className="text-4xl font-bold text-yellow-800">{coins} 🪙</p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-pink-700 mb-1">Piggy Bank</p>
-            <p className="text-4xl font-bold text-pink-800">{savedCoins} 🐷</p>
-          </div>
-        </div>
+      {/* Wallet & Piggy Bank Cards */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <StatCard
+          icon="👛"
+          label="Wallet"
+          value={coins}
+          sublabel="ready to spend"
+          backgroundColor="var(--sage-green)"
+        />
+        <StatCard
+          icon="🐷"
+          label="Piggy Bank"
+          value={savedCoins}
+          sublabel="growing safely"
+          backgroundColor="var(--soft-lavender)"
+        />
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <button
+      {/* Action Cards */}
+      <div className="space-y-4 mb-8">
+        <ActionCard
+          icon="📚"
+          title="Play a Lesson"
+          description={getLessonDescription()}
+          backgroundColor="var(--soft-mint)"
+          arrowColor="var(--dark-sage)"
           onClick={() => onNavigate('lessons')}
-          className="bg-blue-500 text-white rounded-2xl p-4 text-left hover:bg-blue-600 transition-all active:scale-95"
-        >
-          <div className="text-3xl mb-2">📚</div>
-          <p className="font-semibold">Play a Lesson</p>
-          <p className="text-sm text-blue-200">
-            {availableLessons > 0
-              ? `${availableLessons} available`
-              : 'All done!'}
-          </p>
-        </button>
-
-        <button
+        />
+        <ActionCard
+          icon="✨"
+          title="Open AR Room"
+          description={getItemsDescription()}
+          backgroundColor="var(--soft-peach)"
+          arrowColor="var(--deep-lavender)"
           onClick={() => onNavigate('ar')}
-          className="bg-purple-500 text-white rounded-2xl p-4 text-left hover:bg-purple-600 transition-all active:scale-95"
-        >
-          <div className="text-3xl mb-2">✨</div>
-          <p className="font-semibold">Open AR Room</p>
-          <p className="text-sm text-purple-200">
-            {ownedItems.length} items owned
-          </p>
-        </button>
+        />
+        <ActionCard
+          icon="🛍️"
+          title="Visit Shop"
+          description="Spend your coins on cool items"
+          backgroundColor="var(--light-gray)"
+          arrowColor="var(--text-secondary)"
+          onClick={() => onNavigate('shop')}
+        />
       </div>
 
-      {/* Stats */}
-      <div className="bg-white rounded-2xl p-4 shadow-lg">
-        <h2 className="font-bold text-gray-800 mb-4">📊 Your Progress</h2>
-        <div className="space-y-3">
+      {/* Progress Section */}
+      <Card backgroundColor="white">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+          <span>📊</span> Your Progress
+        </h2>
+        <div className="space-y-4">
+          {/* Lessons Progress Bar */}
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Lessons Completed</span>
-            <span className="font-bold text-blue-600">
-              {completedLessons.length} / {lessons.length}
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Lessons Completed
+            </span>
+            <div className="flex items-center gap-2">
+              <div 
+                className="h-2 w-32 rounded-full overflow-hidden"
+                style={{ backgroundColor: '#e5e5e5' }}
+              >
+                <div 
+                  className="h-full rounded-full transition-all"
+                  style={{ 
+                    backgroundColor: 'var(--dark-sage)',
+                    width: `${(completedLessons.length / lessons.length) * 100}%`
+                  }}
+                />
+              </div>
+              <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                {completedLessons.length}/{lessons.length}
+              </span>
+            </div>
+          </div>
+
+          {/* Items Collected */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Items Collected
+            </span>
+            <span className="text-sm font-semibold" style={{ color: 'var(--deep-lavender)' }}>
+              {ownedItems.length} items
             </span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600">Items Collected</span>
-            <span className="font-bold text-purple-600">{ownedItems.length}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600">Total Wealth</span>
-            <span className="font-bold text-green-600">{coins + savedCoins} 🪙</span>
+
+          {/* Total Wealth */}
+          <div className="flex justify-between items-center pt-3 border-t" style={{ borderColor: '#e5e5e5' }}>
+            <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+              Total Wealth
+            </span>
+            <span className="text-lg font-bold" style={{ color: 'var(--dark-sage)' }}>
+              {coins + savedCoins} 🪙
+            </span>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

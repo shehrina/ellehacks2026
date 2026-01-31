@@ -1,4 +1,5 @@
-import { useGameStore, ShopItem } from '../store/gameStore'
+import { useGameStore } from '../store/gameStore'
+import type { ShopItem } from '../store/gameStore'
 import { shopItems } from '../data/shopItems'
 import { ModelViewer } from './ModelViewer'
 

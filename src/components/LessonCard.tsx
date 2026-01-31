@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Lesson } from '../data/lessons'
+import type { Lesson } from '../data/lessons'
 import { useGameStore } from '../store/gameStore'
 
 interface LessonCardProps {
