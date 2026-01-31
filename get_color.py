@@ -14,6 +14,10 @@ def get_hex(path):
         return '#{:02x}{:02x}{:02x}'.format(r, g, b)
     except Exception as e:
         print(f"Error: {e}")
-        return "#60A5FA" # Fallback to blue-400
+        return "ERROR"
 
-print(get_hex('/Users/ito3/.gemini/antigravity/brain/84509355-4bb8-471d-8922-685429db3b7f/uploaded_media_1769892214492.png'))
+img1 = '/Users/ito3/.gemini/antigravity/brain/84509355-4bb8-471d-8922-685429db3b7f/uploaded_media_0_1769895303271.png'
+img2 = '/Users/ito3/.gemini/antigravity/brain/84509355-4bb8-471d-8922-685429db3b7f/uploaded_media_1_1769895303271.png'
+
+print(f"Image 1: {get_hex(img1)}")
+print(f"Image 2: {get_hex(img2)}")
