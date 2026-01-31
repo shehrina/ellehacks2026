@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CoinQuest AR - Multi-Object</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: white;
+      overflow: hidden;
+      touch-action: none;
+    }
+    #container {
+      width: 100vw;
+      height: 100vh;
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .pointer-events {
+      pointer-events: auto;
+    }
+    #start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 20px;
+      text-align: center;
+      pointer-events: auto;
+    }
+    #start-screen h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    #start-screen p {
+      color: #aaa;
+      margin-bottom: 2rem;
+    }
+    #start-btn {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+    }
+    #start-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    #status {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 70px;
+      background: rgba(0,0,0,0.7);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+    #exit-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: bold;
+      pointer-events: auto;
+    }
+    #clear-btn {
+      position: absolute;
+      top: 64px;
+      right: 16px;
+      background: #6b7280;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      pointer-events: auto;
+      display: none;
+    }
+    #mode-toggle {
+      position: absolute;
+      top: 110px;
+      right: 16px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      pointer-events: auto;
+    }
+    #mode-toggle.edit-mode {
+      background: #f59e0b;
+    }
+    #inventory {
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      right: 16px;
+    }
+    #inventory p {
+      font-size: 0.75rem;
+      text-align: center;
+      margin-bottom: 8px;
+      color: #ccc;
+    }
+    #inventory-items {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+    .inv-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 16px;
+      border: 3px solid transparent;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .inv-item.selected {
+      background: #22c55e;
+      border-color: white;
+      transform: scale(1.1);
+    }
+    .inv-item span.icon {
+      font-size: 2rem;
+    }
+    .inv-item span.name {
+      font-size: 0.7rem;
+      margin-top: 4px;
+    }
+    #not-supported {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 20px;
+      text-align: center;
+    }
+    #not-supported a {
+      display: inline-block;
+      margin-top: 1rem;
+      background: #3b82f6;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .hidden { display: none !important; }
+    
+    #scale-controls {
+      position: absolute;
+      bottom: 140px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      gap: 12px;
+      align-items: center;
+      background: rgba(0,0,0,0.7);
+      padding: 12px 20px;
+      border-radius: 50px;
+    }
+    #scale-controls.visible {
+      display: flex;
+    }
+    #scale-controls button {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+      pointer-events: auto;
+    }
+    #scale-controls span {
+      min-width: 60px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  
+  <div id="overlay">
+    <!-- Start screen -->
+    <div id="start-screen">
+      <h1>🏠 AR Room Builder</h1>
+      <p>Place furniture in your real room!<br>Requires ARCore-compatible Android + Chrome.</p>
+      <button id="start-btn" disabled>Checking AR support...</button>
+    </div>
+
+    <!-- Not supported message -->
+    <div id="not-supported">
+      <h2>WebXR AR Not Supported</h2>
+      <p>This feature requires an ARCore-compatible Android device with Chrome.</p>
+      <a href="/ar-test.html">Try Single-Object AR Instead</a>
+    </div>
+
+    <!-- AR UI (hidden until AR starts) -->
+    <div id="ar-ui" class="hidden">
+      <div id="status">Point at a flat surface...</div>
+      <button id="exit-btn">Exit AR</button>
+      <button id="clear-btn">Clear All (0)</button>
+      <button id="mode-toggle">Mode: Place</button>
+      
+      <!-- Scale controls (visible when object selected in edit mode) -->
+      <div id="scale-controls">
+        <button id="scale-down">−</button>
+        <span id="scale-value">100%</span>
+        <button id="scale-up">+</button>
+      </div>
+      
+      <div id="inventory">
+        <p id="inventory-label">Tap an item, then tap the floor to place:</p>
+        <div id="inventory-items">
+          <div class="inv-item" data-id="armchair" data-model="/models/armchair-fixed.glb">
+            <span class="icon">🪑</span>
+            <span class="name">Armchair</span>
+          </div>
+          <div class="inv-item" data-id="cat" data-model="/models/toy-cat.glb">
+            <span class="icon">🐱</span>
+            <span class="name">Toy Cat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js and GLTFLoader -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    // DOM elements
+    const container = document.getElementById('container');
+    const startScreen = document.getElementById('start-screen');
+    const notSupported = document.getElementById('not-supported');
+    const arUI = document.getElementById('ar-ui');
+    const startBtn = document.getElementById('start-btn');
+    const exitBtn = document.getElementById('exit-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const modeToggle = document.getElementById('mode-toggle');
+    const statusEl = document.getElementById('status');
+    const inventoryItems = document.querySelectorAll('.inv-item');
+    const inventoryLabel = document.getElementById('inventory-label');
+    const scaleControls = document.getElementById('scale-controls');
+    const scaleValue = document.getElementById('scale-value');
+    const scaleUpBtn = document.getElementById('scale-up');
+    const scaleDownBtn = document.getElementById('scale-down');
+
+    // State
+    let selectedItem = null;
+    let placedObjects = [];
+    let mode = 'place'; // 'place' or 'edit'
+    let selectedObject = null; // Currently selected placed object for editing
+    let isDragging = false;
+    let isPlacing = false; // Guard against double placement
+    
+    // Three.js
+    let scene, camera, renderer, reticle, loader;
+    let hitTestSource = null;
+    let hitTestSourceRequested = false;
+    let currentSession = null;
+    let raycaster = new THREE.Raycaster();
+
+    // Check WebXR support
+    async function checkSupport() {
+      if (!navigator.xr) {
+        showNotSupported();
+        return;
+      }
+      try {
+        const supported = await navigator.xr.isSessionSupported('immersive-ar');
+        if (supported) {
+          startBtn.textContent = 'Start AR Experience';
+          startBtn.disabled = false;
+        } else {
+          showNotSupported();
+        }
+      } catch (e) {
+        showNotSupported();
+      }
+    }
+
+    function showNotSupported() {
+      startScreen.style.display = 'none';
+      notSupported.style.display = 'flex';
+    }
+
+    // Initialize Three.js
+    function initThree() {
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.xr.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // Lighting
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1.5);
+      hemiLight.position.set(0.5, 1, 0.25);
+      scene.add(hemiLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+      dirLight.position.set(0, 5, 5);
+      scene.add(dirLight);
+
+      // Reticle
+      const reticleGeo = new THREE.RingGeometry(0.08, 0.1, 32);
+      reticleGeo.rotateX(-Math.PI / 2);
+      const reticleMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      reticle = new THREE.Mesh(reticleGeo, reticleMat);
+      reticle.visible = false;
+      reticle.matrixAutoUpdate = false;
+      scene.add(reticle);
+
+      // Loader
+      loader = new GLTFLoader();
+
+      // Resize handler
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    // Start AR session
+    async function startAR() {
+      try {
+        const session = await navigator.xr.requestSession('immersive-ar', {
+          requiredFeatures: ['hit-test'],
+          optionalFeatures: ['dom-overlay'],
+          domOverlay: { root: document.getElementById('overlay') }
+        });
+
+        currentSession = session;
+        startScreen.classList.add('hidden');
+        arUI.classList.remove('hidden');
+        
+        session.addEventListener('end', onSessionEnd);
+        session.addEventListener('select', onSelect);
+        session.addEventListener('selectstart', onSelectStart);
+        session.addEventListener('selectend', onSelectEnd);
+
+        renderer.xr.setReferenceSpaceType('local');
+        await renderer.xr.setSession(session);
+
+        renderer.setAnimationLoop(render);
+        
+        setStatus('Point at a flat surface. Select an item below, then tap to place.');
+
+      } catch (e) {
+        console.error('AR start error:', e);
+        setStatus('Failed to start AR: ' + e.message);
+      }
+    }
+
+    function onSessionEnd() {
+      currentSession = null;
+      hitTestSource = null;
+      hitTestSourceRequested = false;
+      arUI.classList.add('hidden');
+      startScreen.classList.remove('hidden');
+      reticle.visible = false;
+      
+      // Clear placed objects from scene
+      placedObjects.forEach(obj => scene.remove(obj.model));
+      placedObjects = [];
+      selectedObject = null;
+      updateClearBtn();
+      updateScaleControls();
+    }
+
+    function onSelectStart(event) {
+      if (mode === 'edit' && selectedObject) {
+        isDragging = true;
+      }
+    }
+
+    function onSelectEnd(event) {
+      isDragging = false;
+    }
+
+    function onSelect(event) {
+      if (mode === 'place') {
+        // Place mode: place new objects
+        if (reticle.visible && selectedItem) {
+          placeObject(selectedItem);
+        }
+      } else if (mode === 'edit') {
+        // Edit mode: select existing objects
+        selectObjectAtReticle();
+      }
+    }
+
+    function selectObjectAtReticle() {
+      if (!reticle.visible) return;
+      
+      const reticlePos = new THREE.Vector3();
+      reticle.matrix.decompose(reticlePos, new THREE.Quaternion(), new THREE.Vector3());
+      
+      // Find closest object to reticle
+      let closestObj = null;
+      let closestDist = 0.5; // Max selection distance
+      
+      for (const obj of placedObjects) {
+        const dist = obj.model.position.distanceTo(reticlePos);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestObj = obj;
+        }
+      }
+      
+      // Deselect previous
+      if (selectedObject) {
+        highlightObject(selectedObject, false);
+      }
+      
+      selectedObject = closestObj;
+      
+      if (selectedObject) {
+        highlightObject(selectedObject, true);
+        setStatus(`Selected! Use +/- to scale, or tap elsewhere to move.`);
+      } else {
+        setStatus('No object nearby. Tap closer to an object to select it.');
+      }
+      
+      updateScaleControls();
+    }
+
+    function highlightObject(obj, highlight) {
+      obj.model.traverse((child) => {
+        if (child.isMesh && child.material) {
+          if (highlight) {
+            child.material.emissive = new THREE.Color(0x333333);
+          } else {
+            child.material.emissive = new THREE.Color(0x000000);
+          }
+        }
+      });
+    }
+
+    async function placeObject(modelPath) {
+      // Prevent double placement
+      if (isPlacing) return;
+      isPlacing = true;
+      
+      setStatus('Loading model...');
+      
+      // Get reticle position first
+      const pos = new THREE.Vector3();
+      const quat = new THREE.Quaternion();
+      const scaleVec = new THREE.Vector3();
+      reticle.matrix.decompose(pos, quat, scaleVec);
+      
+      // Convert to absolute URL
+      const absoluteUrl = new URL(modelPath, window.location.href).href;
+      
+      try {
+        const gltf = await loader.loadAsync(absoluteUrl);
+        const model = gltf.scene.clone();
+
+        // Position at reticle
+        model.position.copy(pos);
+        model.scale.set(1, 1, 1);
+
+        // Make sure model is visible
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            if (child.material) {
+              child.material.side = THREE.DoubleSide;
+              // Clone material so we can modify emissive independently
+              child.material = child.material.clone();
+            }
+          }
+        });
+
+        scene.add(model);
+        const objData = { model, modelPath, scale: 1 };
+        placedObjects.push(objData);
+        updateClearBtn();
+
+        setStatus(`Placed! ${placedObjects.length} object(s). Switch to Edit mode to move/resize.`);
+
+      } catch (e) {
+        console.error('Load error:', e);
+        setStatus('Error: ' + e.message);
+      } finally {
+        // Allow placing again after a short delay
+        setTimeout(() => { isPlacing = false; }, 500);
+      }
+    }
+
+    function render(timestamp, frame) {
+      if (!frame) return;
+
+      const session = renderer.xr.getSession();
+      const referenceSpace = renderer.xr.getReferenceSpace();
+
+      if (!hitTestSourceRequested) {
+        session.requestReferenceSpace('viewer').then(viewerSpace => {
+          session.requestHitTestSource({ space: viewerSpace }).then(source => {
+            hitTestSource = source;
+          });
+        });
+        hitTestSourceRequested = true;
+      }
+
+      if (hitTestSource) {
+        const hitTestResults = frame.getHitTestResults(hitTestSource);
+
+        if (hitTestResults.length > 0) {
+          const hit = hitTestResults[0];
+          const pose = hit.getPose(referenceSpace);
+
+          if (pose) {
+            reticle.visible = true;
+            reticle.matrix.fromArray(pose.transform.matrix);
+            
+            // If dragging in edit mode, move the selected object
+            if (isDragging && selectedObject && mode === 'edit') {
+              const pos = new THREE.Vector3();
+              const quat = new THREE.Quaternion();
+              const scale = new THREE.Vector3();
+              reticle.matrix.decompose(pos, quat, scale);
+              selectedObject.model.position.copy(pos);
+            }
+          }
+        } else {
+          reticle.visible = false;
+        }
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    function updateClearBtn() {
+      clearBtn.textContent = `Clear All (${placedObjects.length})`;
+      clearBtn.style.display = placedObjects.length > 0 ? 'block' : 'none';
+    }
+
+    function updateScaleControls() {
+      if (mode === 'edit' && selectedObject) {
+        scaleControls.classList.add('visible');
+        scaleValue.textContent = Math.round(selectedObject.scale * 100) + '%';
+      } else {
+        scaleControls.classList.remove('visible');
+      }
+    }
+
+    function clearAll() {
+      placedObjects.forEach(obj => scene.remove(obj.model));
+      placedObjects = [];
+      selectedObject = null;
+      updateClearBtn();
+      updateScaleControls();
+      setStatus('Cleared! Select an item to place.');
+    }
+
+    function toggleMode() {
+      if (mode === 'place') {
+        mode = 'edit';
+        modeToggle.textContent = 'Mode: Edit';
+        modeToggle.classList.add('edit-mode');
+        inventoryLabel.textContent = 'Tap near an object to select, then drag to move:';
+        // Deselect inventory item
+        inventoryItems.forEach(i => i.classList.remove('selected'));
+        selectedItem = null;
+        setStatus('Edit mode: Tap near an object to select it.');
+      } else {
+        mode = 'place';
+        modeToggle.textContent = 'Mode: Place';
+        modeToggle.classList.remove('edit-mode');
+        inventoryLabel.textContent = 'Tap an item, then tap the floor to place:';
+        // Deselect any selected object
+        if (selectedObject) {
+          highlightObject(selectedObject, false);
+          selectedObject = null;
+        }
+        updateScaleControls();
+        setStatus('Place mode: Select an item below, then tap to place.');
+      }
+    }
+
+    function scaleSelected(factor) {
+      if (!selectedObject) return;
+      
+      selectedObject.scale *= factor;
+      // Clamp scale
+      selectedObject.scale = Math.max(0.1, Math.min(5, selectedObject.scale));
+      
+      selectedObject.model.scale.set(
+        selectedObject.scale,
+        selectedObject.scale,
+        selectedObject.scale
+      );
+      
+      updateScaleControls();
+    }
+
+    // Event listeners
+    startBtn.addEventListener('click', startAR);
+    exitBtn.addEventListener('click', () => currentSession?.end());
+    clearBtn.addEventListener('click', clearAll);
+    modeToggle.addEventListener('click', toggleMode);
+    scaleUpBtn.addEventListener('click', () => scaleSelected(1.2));
+    scaleDownBtn.addEventListener('click', () => scaleSelected(0.8));
+
+    inventoryItems.forEach(item => {
+      item.addEventListener('click', () => {
+        if (mode !== 'place') {
+          toggleMode(); // Switch to place mode
+        }
+        // Deselect all
+        inventoryItems.forEach(i => i.classList.remove('selected'));
+        // Select this one
+        item.classList.add('selected');
+        selectedItem = item.dataset.model;
+        setStatus(`${item.querySelector('.name').textContent} selected. Tap floor to place.`);
+      });
+    });
+
+    // Initialize
+    initThree();
+    checkSupport();
+  </script>
+</body>
+</html>
