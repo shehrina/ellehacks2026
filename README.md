@@ -1,8 +1,8 @@
-# CoinQuest 🪙
+# Coinquest 🪙
 
 **Save it. Spend it. See it.**
 
-CoinQuest is an AR-powered financial literacy game that teaches kids (ages 6-12) about money through immersive, hands-on experiences. Instead of reading about saving vs. spending, kids *see* the consequences of their choices appear in their real-world space through augmented reality.
+Coinquest is an AR-powered financial literacy game that teaches kids (ages 6-12) about money through immersive, hands-on experiences. Instead of reading about saving vs. spending, kids *see* the consequences of their choices appear in their real-world space through augmented reality.
 
 ---
 
@@ -14,7 +14,7 @@ Financial literacy is rarely taught in schools, and when it is, it's boring. Kid
 
 ## Our Solution
 
-CoinQuest makes money decisions *tangible*. Kids earn virtual coins by completing interactive quests that teach core financial concepts. Then they spend those coins to buy furniture for their AR room—and immediately see the tradeoff.
+Coinquest makes money decisions *tangible*. Kids earn virtual coins by completing interactive quests that teach core financial concepts. Then they spend those coins to buy furniture for their AR room—and immediately see the tradeoff.
 
 **Want to buy candy now?** Your savings goal gets further away.
 **Saved up for the armchair?** Watch it appear in your actual bedroom through AR.
@@ -31,7 +31,7 @@ Research shows that immersive, experiential learning dramatically outperforms tr
 | **50% boost in focus** | Interactive experiences hold attention longer than passive content |
 | **30% better long-term financial habits** | Learning by doing creates lasting behavioral change |
 
-By placing financial decisions in a child's real-world environment, CoinQuest transforms abstract concepts into memorable, actionable experiences.
+By placing financial decisions in a child's real-world environment, Coinquest transforms abstract concepts into memorable, actionable experiences.
 
 ---
 
@@ -81,7 +81,7 @@ No hovering required—parents stay informed while kids stay independent.
 
 ## Privacy & Safety (Kid-First Design)
 
-CoinQuest was designed with COPPA principles in mind:
+Coinquest was designed with COPPA principles in mind:
 
 | Feature | Why It Matters |
 |---------|----------------|
@@ -110,7 +110,7 @@ CoinQuest was designed with COPPA principles in mind:
 
 ## How It Teaches Financial Literacy
 
-| Concept | How CoinQuest Teaches It |
+| Concept | How Coinquest Teaches It |
 |---------|--------------------------|
 | **Delayed Gratification** | Quests show the cost of impulse decisions; AR room rewards patience |
 | **Opportunity Cost** | Limited coins force tradeoffs—buy the toy OR save for the bed |
@@ -132,8 +132,8 @@ CoinQuest was designed with COPPA principles in mind:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/coinquest.git
-cd coinquest
+git clone https://github.com/your-repo/Coinquest.git
+cd Coinquest
 
 # Install dependencies
 npm install
@@ -153,7 +153,7 @@ npm run dev
 ## Project Structure
 
 ```
-coinquest/
+Coinquest/
 ├── public/
 │   ├── models/          # 3D furniture models (GLB)
 │   ├── sounds/          # Audio files
@@ -169,7 +169,7 @@ coinquest/
 
 ---
 
-## Why CoinQuest Wins
+## Why Coinquest Wins
 
 ### Creative Approach
 We didn't build another quiz app. We built a world where money decisions have *visible* consequences. AR transforms abstract concepts into tangible experiences.
