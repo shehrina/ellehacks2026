@@ -22,9 +22,9 @@ interface ShopItemCardProps {
 }
 
 function ShopItemCard({ item }: ShopItemCardProps) {
-  const savedCoins = useGameStore((state) => state.savedCoins)
+  const coins = useGameStore((state) => state.coins)
   const buyItem = useGameStore((state) => state.buyItem)
-  const canAfford = savedCoins >= item.price
+  const canAfford = coins >= item.price
 
   const handleBuy = () => {
     const success = buyItem(item)

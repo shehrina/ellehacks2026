@@ -1,37 +1,17 @@
-import { useState } from 'react'
 import { lessons } from '../data/lessons'
 import { useGameStore } from '../store/gameStore'
-import { LessonCard } from './LessonCard'
 import { FaBook, FaGraduationCap, FaCheckCircle } from 'react-icons/fa'
 
 export function Lessons() {
   const completedLessons = useGameStore((state) => state.completedLessons)
-  const [currentLessonIndex, setCurrentLessonIndex] = useState<number | null>(null)
 
   const availableLessons = lessons.filter(
     (l) => !completedLessons.includes(l.id)
   )
 
-  const handleLessonComplete = () => {
-    setCurrentLessonIndex(null)
-  }
-
-  // Show lesson card if one is selected
-  if (currentLessonIndex !== null && availableLessons[currentLessonIndex]) {
-    return (
-      <div className="p-4 pb-24">
-        <button
-          onClick={() => setCurrentLessonIndex(null)}
-          className="mb-4 text-gray-500 hover:text-gray-700"
-        >
-          ← Back to lessons
-        </button>
-        <LessonCard
-          lesson={availableLessons[currentLessonIndex]}
-          onComplete={handleLessonComplete}
-        />
-      </div>
-    )
+  // Open AR lesson with specific lesson ID
+  const openARLesson = (lessonId: string) => {
+    window.location.href = `/ar-lessons.html?lesson=${lessonId}`
   }
 
   return (
@@ -59,7 +39,7 @@ export function Lessons() {
           {availableLessons.map((lesson, index) => (
             <button
               key={lesson.id}
-              onClick={() => setCurrentLessonIndex(index)}
+              onClick={() => openARLesson(lesson.id)}
               className="w-full bg-white rounded-2xl p-4 shadow-lg text-left hover:shadow-xl transition-all active:scale-98 border-2 border-transparent hover:border-blue-200"
             >
               <div className="flex items-center gap-4">

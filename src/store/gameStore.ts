@@ -17,11 +17,14 @@ export interface OwnedItem {
 }
 
 interface GameState {
+  coins: number
   // Piggy Bank (all coins stored here)
   savedCoins: number
   addCoins: (amount: number) => void
   spendCoins: (amount: number) => boolean
   growSavings: () => void // Simulates interest
+  saveCoins: (amount: number) => void
+  withdrawCoins: (amount: number) => boolean
 
   // Inventory
   ownedItems: OwnedItem[]
@@ -52,7 +55,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   // Piggy Bank
   savedCoins: 0,
 
-  saveCoins: (amount) => {
+  saveCoins: (amount: number) => {
     const state = get()
     if (state.coins >= amount) {
       set({
@@ -62,7 +65,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
   },
 
-  withdrawCoins: (amount) => {
+  withdrawCoins: (amount: number) => {
     const state = get()
     if (state.savedCoins >= amount) {
       set({

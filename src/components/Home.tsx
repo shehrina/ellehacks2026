@@ -1,12 +1,10 @@
+import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { lessons } from '../data/lessons'
 import { Card } from './Card'
 
-interface HomeProps {
-  onNavigate: (tab: string) => void
-}
-
-export function Home({ onNavigate }: HomeProps) {
+export function Home() {
+  const navigate = useNavigate()
   const coins = useGameStore((state) => state.coins)
   const savedCoins = useGameStore((state) => state.savedCoins)
   const completedLessons = useGameStore((state) => state.completedLessons)
@@ -17,7 +15,7 @@ export function Home({ onNavigate }: HomeProps) {
       {/* Hero Section */}
       <div className="text-center mb-8 mt-4 w-full flex flex-col items-center">
         {/* Huge Gold Button */}
-        <div className="relative group cursor-pointer animate-float mb-8" onClick={() => onNavigate('lessons')}>
+        <div className="relative group cursor-pointer animate-float mb-8" onClick={() => navigate('/lessons')}>
 
           {/* Spinning Container */}
           <div className="animate-spin-slow preserve-3d">
@@ -54,7 +52,7 @@ export function Home({ onNavigate }: HomeProps) {
       {/* Navigation Buttons */}
       <div className="w-full mb-10 px-4 flex justify-center gap-4">
         <button
-          onClick={() => onNavigate('lessons')}
+          onClick={() => navigate('/lessons')}
           className="flex-1 bg-[#A7C7E7] hover:bg-[#96b6d6] border-b-4 border-[#85a5c5] rounded-2xl p-4 flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95 group"
         >
           <div className="bg-white/30 p-1.5 rounded-full group-hover:scale-110 transition-transform">

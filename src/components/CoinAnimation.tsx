@@ -20,6 +20,10 @@ export function CoinAnimation({
   const [rotation, setRotation] = useState(0)
 
   useEffect(() => {
+    // Play coin sound
+    const coinSound = new Audio('/sounds/coin-sound.mp3')
+    coinSound.play().catch(() => {}) // Ignore errors if audio can't play
+    
     // Bounce animation sequence
     const duration = 1500 // 1.5 seconds
     const startTime = Date.now()

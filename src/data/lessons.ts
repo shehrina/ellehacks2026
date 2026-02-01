@@ -20,12 +20,12 @@ export const lessons: Lesson[] = [
       {
         text: "Buy the candy now!",
         isCorrect: false,
-        feedback: "The candy tastes great, but now you're further from your lamp goal. You have to save 10 more coins instead of just 5."
+        feedback: "The candy tastes great, but now you're further from your lamp goal. You have to save 10 more coins instead of just 5.\n\nTLDR: Quick treats slow down big goals!"
       },
       {
         text: "Keep saving for the lamp",
         isCorrect: true,
-        feedback: "Nice! You resisted the temptation. You're only 5 coins away from your lamp now!"
+        feedback: "Nice! You resisted the temptation. You're only 5 coins away from your lamp now!\n\nTLDR: Patience pays off!"
       }
     ],
     principle: "Saving delays fun, but gets you bigger rewards.",
@@ -38,12 +38,12 @@ export const lessons: Lesson[] = [
       {
         text: "Buy the toy",
         isCorrect: false,
-        feedback: "The toy is fun, but now you have to carry your books in your arms! Needs should come before wants."
+        feedback: "The toy is fun, but now you have to carry your books in your arms! Needs should come before wants.\n\nTLDR: Needs first, wants later!"
       },
       {
         text: "Buy the backpack",
         isCorrect: true,
-        feedback: "Smart choice! You took care of what you needed first. You can save up for the toy later."
+        feedback: "Smart choice! You took care of what you needed first. You can save up for the toy later.\n\nTLDR: Handle needs, then chase wants!"
       }
     ],
     principle: "Needs come before wants.",
@@ -56,12 +56,12 @@ export const lessons: Lesson[] = [
       {
         text: "Take it all out for stickers",
         isCorrect: false,
-        feedback: "Stickers are fun, but your money stopped growing. If you had waited, it would keep getting bigger!"
+        feedback: "Stickers are fun, but your money stopped growing. If you had waited, it would keep getting bigger!\n\nTLDR: Spending stops growth!"
       },
       {
         text: "Leave it to keep growing",
         isCorrect: true,
-        feedback: "Great patience! Your money will keep growing. This is how saving really pays off over time."
+        feedback: "Great patience! Your money will keep growing. This is how saving really pays off over time.\n\nTLDR: Let your money grow!"
       }
     ],
     principle: "Money grows when you give it time.",
@@ -74,12 +74,12 @@ export const lessons: Lesson[] = [
       {
         text: "Spend it all on the plant and cat now",
         isCorrect: false,
-        feedback: "You got two items, but now you have no coins left and still want the armchair. Planning helps you get what matters most!"
+        feedback: "You got two items, but now you have no coins left and still want the armchair. Planning helps you get what matters most!\n\nTLDR: No plan = regrets!"
       },
       {
         text: "Save a bit more to get the armchair first",
         isCorrect: true,
-        feedback: "Smart planning! By waiting just 5 more coins, you'll get the biggest item you want. Then you can save for the others!"
+        feedback: "Smart planning! By waiting just 5 more coins, you'll get the biggest item you want. Then you can save for the others!\n\nTLDR: Plan big, win big!"
       }
     ],
     principle: "Planning your spending helps you get what you really want.",
@@ -92,12 +92,12 @@ export const lessons: Lesson[] = [
       {
         text: "Play games instead",
         isCorrect: false,
-        feedback: "Games are fun, but you missed a chance to earn coins! Earning money helps you reach your goals faster."
+        feedback: "Games are fun, but you missed a chance to earn coins! Earning money helps you reach your goals faster.\n\nTLDR: Missed work = missed coins!"
       },
       {
         text: "Help clean the yard",
         isCorrect: true,
-        feedback: "Great choice! You earned 15 coins and learned that work can help you get the things you want. Now you're closer to your goals!"
+        feedback: "Great choice! You earned 15 coins and learned that work can help you get the things you want. Now you're closer to your goals!\n\nTLDR: Work hard, earn more!"
       }
     ],
     principle: "Earning money through work helps you reach your goals.",

@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>AR Lessons - CoinQuest</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: white;
+      overflow: hidden;
+      touch-action: none;
+    }
+    
+    #container {
+      width: 100vw;
+      height: 100vh;
+    }
+    
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    #start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 20px;
+      text-align: center;
+      pointer-events: auto;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    #start-screen h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    #start-screen p {
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 2rem;
+    }
+    
+    #start-btn {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    
+    #start-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    
+    #back-link {
+      color: white;
+      text-decoration: underline;
+      font-size: 1rem;
+    }
+    
+    #exit-btn {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: bold;
+      pointer-events: auto;
+      display: none;
+    }
+    
+    #coin-display {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.7);
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      display: none;
+    }
+    
+    #status {
+      position: absolute;
+      top: 80px;
+      left: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.7);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+    }
+    
+    /* Lesson selection card */
+    #lesson-select {
+      position: absolute;
+      bottom: 20px;
+      left: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      padding: 20px;
+      pointer-events: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      max-height: 50vh;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    #lesson-select h3 {
+      color: #333;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    
+    .lesson-item {
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 16px;
+      background: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #333;
+    }
+    
+    .lesson-item:hover, .lesson-item:active {
+      border-color: #667eea;
+      background: #f0f0ff;
+    }
+    
+    .lesson-item.completed {
+      border-color: #22c55e;
+      background: #dcfce7;
+    }
+    
+    .lesson-icon { font-size: 1.4rem; }
+    .lesson-title { flex: 1; font-weight: 600; }
+    .lesson-reward { color: #f59e0b; font-weight: bold; }
+    
+    /* Story card */
+    #story-card {
+      position: absolute;
+      bottom: 20px;
+      left: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      padding: 20px;
+      pointer-events: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      max-height: 55vh;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    #story-text {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 16px;
+    }
+    
+    .choice-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 16px;
+      background: white;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #333;
+    }
+    
+    .choice-btn:hover { border-color: #667eea; background: #f0f0ff; }
+    .choice-btn:active { transform: scale(0.98); }
+    .choice-btn.correct { border-color: #22c55e; background: #dcfce7; }
+    .choice-btn.incorrect { border-color: #ef4444; background: #fef2f2; }
+    .choice-btn:disabled { cursor: default; }
+    
+    /* Feedback card */
+    #feedback-card {
+      position: absolute;
+      bottom: 20px;
+      left: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      padding: 24px;
+      pointer-events: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      text-align: center;
+      display: none;
+    }
+    
+    #feedback-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+    
+    /* Complete card */
+    #complete-card {
+      position: absolute;
+      bottom: 20px;
+      left: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      padding: 24px;
+      pointer-events: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      text-align: center;
+      display: none;
+    }
+    
+    /* Object info card */
+    #object-info-card {
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      right: 16px;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.98);
+      border-radius: 20px;
+      padding: 20px;
+      pointer-events: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      display: none;
+    }
+    
+    #object-info-name {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    
+    #object-info-fact {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #555;
+      margin: 0;
+    }
+    
+    #close-info-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #eee;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #666;
+    }
+    #feedback-text { font-size: 1.05rem; line-height: 1.6; color: #333; margin-bottom: 16px; }
+    
+    #principle-box {
+      background: #fef3c7;
+      border: 2px solid #fcd34d;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    
+    #principle-text { color: #92400e; font-weight: 600; font-size: 0.95rem; }
+    
+    .action-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .action-btn:active { transform: scale(0.95); }
+    
+    /* Flying coins animation */
+    .flying-coin {
+      position: fixed;
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 1000;
+      animation: coinFly 0.8s ease-out forwards;
+    }
+    
+    @keyframes coinFly {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0.3); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  
+  <div id="overlay">
+    <!-- Start screen -->
+    <div id="start-screen">
+      <h1>📚 AR Lessons</h1>
+      <p>Learn money skills with floating 3D objects in AR!</p>
+      <button id="start-btn" disabled>Checking AR...</button>
+      <a id="back-link" href="/">← Back to CoinQuest</a>
+    </div>
+    
+    <!-- In-AR UI -->
+    <button id="exit-btn">← Exit</button>
+    <div id="coin-display">🪙 <span id="coins">0</span></div>
+    <div id="status">Point at a flat surface</div>
+    
+    <!-- Lesson selection -->
+    <div id="lesson-select">
+      <h3>📚 Choose a Lesson</h3>
+      <div id="lesson-list"></div>
+    </div>
+    
+    <!-- Story card -->
+    <div id="story-card">
+      <p id="story-text"></p>
+      <div id="choices"></div>
+    </div>
+    
+    <!-- Feedback card -->
+    <div id="feedback-card">
+      <div id="feedback-emoji">⭐</div>
+      <p id="feedback-text"></p>
+      <div id="principle-box">
+        <p id="principle-text"></p>
+      </div>
+      <button id="continue-btn" class="action-btn">Continue (+10 🪙)</button>
+    </div>
+    
+    <!-- Complete card - shown after continue -->
+    <div id="complete-card">
+      <div style="font-size: 4rem; margin-bottom: 16px;">🎉</div>
+      <h3 style="color: #333; font-size: 1.4rem; margin-bottom: 8px;">Lesson Complete!</h3>
+      <p style="color: #666; margin-bottom: 20px;">Great job learning about money!</p>
+      <button id="back-home-btn" class="action-btn">Back to Home</button>
+    </div>
+    
+    <!-- Object info card - shown when tapping objects -->
+    <div id="object-info-card">
+      <button id="close-info-btn">✕</button>
+      <div id="object-info-name"></div>
+      <p id="object-info-fact"></p>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    // Lessons data
+    const lessons = [
+      {
+        id: 'candy-vs-lamp',
+        title: 'Candy vs Lamp',
+        icon: '🍬',
+        story: "You have 10 coins saved up. You're walking by a candy store and see your favorite treat for 5 coins. But you've been saving for a cool lamp that costs 15 coins.",
+        choices: [
+          { text: "Buy the candy now!", isCorrect: false, feedback: "The candy tastes great, but now you're further from your lamp goal. You have to save 10 more coins instead of just 5.\n\nTLDR: Quick treats slow down big goals!" },
+          { text: "Keep saving for the lamp", isCorrect: true, feedback: "Nice! You resisted the temptation. You're only 5 coins away from your lamp now!\n\nTLDR: Patience pays off!" }
+        ],
+        principle: "Saving delays fun, but gets you bigger rewards.",
+        coinReward: 10,
+        arObjects: ['coin', 'candy', 'lamp']
+      },
+      {
+        id: 'need-vs-want',
+        title: 'Need vs Want',
+        icon: '🎒',
+        story: "Your backpack strap just broke and you need a new one for school. You also really want a new toy that all your friends have. You only have enough for one.",
+        choices: [
+          { text: "Buy the toy", isCorrect: false, feedback: "The toy is fun, but now you have to carry your books in your arms! Needs should come before wants.\n\nTLDR: Needs first, wants later!" },
+          { text: "Buy the backpack", isCorrect: true, feedback: "Smart choice! You took care of what you needed first. You can save up for the toy later.\n\nTLDR: Handle needs, then chase wants!" }
+        ],
+        principle: "Needs come before wants.",
+        coinReward: 10,
+        arObjects: ['backpack', 'toy', 'books']
+      },
+      {
+        id: 'patience-pays',
+        title: 'Patience Pays',
+        icon: '🐷',
+        story: "You put 20 coins in your piggy bank last week. Today you check and see it grew to 22 coins! Your friend wants you to take it all out to buy stickers together.",
+        choices: [
+          { text: "Take it all out for stickers", isCorrect: false, feedback: "Stickers are fun, but your money stopped growing. If you had waited, it would keep getting bigger!\n\nTLDR: Spending stops growth!" },
+          { text: "Leave it to keep growing", isCorrect: true, feedback: "Great patience! Your money will keep growing. This is how saving really pays off over time.\n\nTLDR: Let your money grow!" }
+        ],
+        principle: "Money grows when you give it time.",
+        coinReward: 10,
+        arObjects: ['piggybank', 'coins', 'stickers']
+      },
+      {
+        id: 'plan-your-spending',
+        title: 'Plan Your Spending',
+        icon: '🪴',
+        story: "You have 25 coins and want to decorate your room! A cozy armchair costs 30 coins, a plant costs 10 coins, and a cute cat costs 20 coins. You can't afford everything at once.",
+        choices: [
+          { text: "Spend it all on the plant and cat now", isCorrect: false, feedback: "You got two items, but now you have no coins left and still want the armchair. Planning helps you get what matters most!\n\nTLDR: No plan = regrets!" },
+          { text: "Save a bit more to get the armchair first", isCorrect: true, feedback: "Smart planning! By waiting just 5 more coins, you'll get the biggest item you want. Then you can save for the others!\n\nTLDR: Plan big, win big!" }
+        ],
+        principle: "Planning your spending helps you get what you really want.",
+        coinReward: 10,
+        arObjects: ['armchair', 'plant', 'cat']
+      },
+      {
+        id: 'earning-opportunity',
+        title: 'Earning Money',
+        icon: '💪',
+        story: "Your neighbor offers to pay you 15 coins to help clean their yard. It will take 2 hours of work. You were planning to play games all afternoon.",
+        choices: [
+          { text: "Play games instead", isCorrect: false, feedback: "Games are fun, but you missed a chance to earn coins! Earning money helps you reach your goals faster.\n\nTLDR: Missed work = missed coins!" },
+          { text: "Help clean the yard", isCorrect: true, feedback: "Great choice! You earned 15 coins and learned that work can help you get the things you want. Now you're closer to your goals!\n\nTLDR: Work hard, earn more!" }
+        ],
+        principle: "Earning money through work helps you reach your goals.",
+        coinReward: 10,
+        arObjects: ['coins', 'tools', 'gamepad']
+      }
+    ];
+
+    // Check for preselected lesson from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    let preselectedLessonId = urlParams.get('lesson');
+
+    // Object info data - finance facts for each object type
+    const objectInfo = {
+      coin: { name: '🪙 Coin', fact: 'The first coins were made over 2,600 years ago! Saving even small coins adds up over time.' },
+      coins: { name: '🪙 Coins', fact: 'If you save just $1 a day, you\'ll have $365 by the end of the year!' },
+      piggybank: { name: '🐷 Piggy Bank', fact: 'Piggy banks teach us to save! The name comes from "pygg" - a type of clay used for jars long ago.' },
+      candy: { name: '🍬 Candy', fact: 'Small treats add up! Buying candy every day for a year could cost over $300.' },
+      lamp: { name: '💡 Lamp', fact: 'Bigger purchases are worth saving for - they last longer and bring more value than quick treats!' },
+      backpack: { name: '🎒 Backpack', fact: 'A need is something you must have (like school supplies). Needs should come before wants!' },
+      toy: { name: '🧸 Toy', fact: 'A want is something nice to have but not essential. It\'s okay to buy wants after your needs are met!' },
+      books: { name: '📚 Books', fact: 'Education is an investment in yourself - the knowledge you gain stays with you forever!' },
+      stickers: { name: '⭐ Stickers', fact: 'Small purchases feel good now but don\'t grow. Money in savings can earn interest!' },
+      plant: { name: '🪴 Plant', fact: 'Like plants, money can grow! This is called "compound interest" - your savings earn more savings.' },
+      armchair: { name: '🛋️ Armchair', fact: 'Big purchases need planning. Making a savings goal helps you stay focused!' },
+      cat: { name: '🐱 Cat', fact: 'Pets cost money for food, toys, and vet visits. Planning for future costs is called budgeting!' },
+      tools: { name: '🔧 Tools', fact: 'Tools help you earn money by doing jobs. Investing in skills can increase your earning power!' },
+      gamepad: { name: '🎮 Gamepad', fact: 'Entertainment is fun, but balancing play time with earning time helps you reach goals faster!' }
+    };
+
+    // State
+    let coins = parseInt(localStorage.getItem('arLessonCoins') || '0');
+    let completedLessons = JSON.parse(localStorage.getItem('arCompletedLessons') || '[]');
+    let currentLesson = null;
+
+    // Three.js / WebXR state
+    let scene, camera, renderer;
+    let xrSession = null;
+    let xrRefSpace = null;
+    let hitTestSource = null;
+    let reticle;
+    let floatingObjects = [];
+    let objectsPlaced = false;
+    const loader = new GLTFLoader();
+
+    // DOM elements
+    const container = document.getElementById('container');
+    const startScreen = document.getElementById('start-screen');
+    const startBtn = document.getElementById('start-btn');
+    const exitBtn = document.getElementById('exit-btn');
+    const coinDisplayEl = document.getElementById('coin-display');
+    const coinsEl = document.getElementById('coins');
+    const statusEl = document.getElementById('status');
+    const lessonSelect = document.getElementById('lesson-select');
+    const lessonList = document.getElementById('lesson-list');
+    const storyCard = document.getElementById('story-card');
+    const storyText = document.getElementById('story-text');
+    const choicesEl = document.getElementById('choices');
+    const feedbackCard = document.getElementById('feedback-card');
+    const feedbackEmoji = document.getElementById('feedback-emoji');
+    const feedbackText = document.getElementById('feedback-text');
+    const principleText = document.getElementById('principle-text');
+    const continueBtn = document.getElementById('continue-btn');
+
+    // Update UI
+    function updateCoins() {
+      coinsEl.textContent = coins;
+      localStorage.setItem('arLessonCoins', coins.toString());
+    }
+
+    function saveProgress() {
+      localStorage.setItem('arCompletedLessons', JSON.stringify(completedLessons));
+    }
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    // Initialize Three.js
+    function initThree() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.xr.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // Lighting
+      const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambient);
+      const directional = new THREE.DirectionalLight(0xffffff, 1.2);
+      directional.position.set(5, 10, 5);
+      scene.add(directional);
+
+      // Reticle for hit-testing
+      const reticleGeometry = new THREE.RingGeometry(0.08, 0.1, 32);
+      reticleGeometry.rotateX(-Math.PI / 2);
+      const reticleMaterial = new THREE.MeshBasicMaterial({ color: 0x22c55e });
+      reticle = new THREE.Mesh(reticleGeometry, reticleMaterial);
+      reticle.visible = false;
+      reticle.matrixAutoUpdate = false;
+      scene.add(reticle);
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    // Check WebXR support
+    async function checkXRSupport() {
+      if (!navigator.xr) {
+        startBtn.textContent = 'WebXR Not Available';
+        return false;
+      }
+      try {
+        const supported = await navigator.xr.isSessionSupported('immersive-ar');
+        if (supported) {
+          startBtn.disabled = false;
+          // Update button text based on whether a lesson was preselected
+          const urlLesson = new URLSearchParams(window.location.search).get('lesson');
+          if (urlLesson) {
+            const lesson = lessons.find(l => l.id === urlLesson);
+            startBtn.textContent = lesson ? `Start: ${lesson.title}` : 'Start AR Lesson';
+          } else {
+            startBtn.textContent = 'Start AR Lessons';
+          }
+          return true;
+        } else {
+          startBtn.textContent = 'AR Not Supported';
+          return false;
+        }
+      } catch (e) {
+        startBtn.textContent = 'AR Error';
+        return false;
+      }
+    }
+
+    // Start AR session
+    async function startAR() {
+      try {
+        xrSession = await navigator.xr.requestSession('immersive-ar', {
+          requiredFeatures: ['hit-test'],
+          optionalFeatures: ['dom-overlay', 'local-floor'],
+          domOverlay: { root: document.getElementById('overlay') }
+        });
+
+        renderer.xr.setReferenceSpaceType('local-floor');
+        await renderer.xr.setSession(xrSession);
+
+        xrRefSpace = await xrSession.requestReferenceSpace('local-floor');
+        const viewerSpace = await xrSession.requestReferenceSpace('viewer');
+        hitTestSource = await xrSession.requestHitTestSource({ space: viewerSpace });
+
+        xrSession.addEventListener('end', onSessionEnd);
+        
+        // Controller for tapping to place objects
+        const controller = renderer.xr.getController(0);
+        controller.addEventListener('select', onSelect);
+        scene.add(controller);
+
+        // Hide start screen, show AR UI
+        console.log('AR session started, showing UI...');
+        startScreen.style.display = 'none';
+        exitBtn.style.display = 'block';
+        coinDisplayEl.style.display = 'block';
+        statusEl.style.display = 'block';
+        
+        // Only show lesson selection if no lesson was preselected
+        if (!preselectedLessonId) {
+          lessonSelect.style.display = 'block';
+        }
+        
+        updateCoins();
+        renderLessonList();
+        setStatus('Choose a lesson below!');
+
+        renderer.setAnimationLoop(render);
+
+      } catch (err) {
+        console.error('AR session error:', err);
+        startBtn.textContent = 'AR Failed: ' + err.message;
+      }
+    }
+
+    function onSessionEnd() {
+      xrSession = null;
+      hitTestSource = null;
+      startScreen.style.display = 'flex';
+      exitBtn.style.display = 'none';
+      coinDisplayEl.style.display = 'none';
+      statusEl.style.display = 'none';
+      lessonSelect.style.display = 'none';
+      storyCard.style.display = 'none';
+      feedbackCard.style.display = 'none';
+      clearFloatingObjects();
+    }
+
+    // Tap to place floating objects
+    function onSelect() {
+      // If objects are already placed, check if we're looking at one
+      if (objectsPlaced) {
+        const tappedObject = findTargetObject();
+        if (tappedObject && tappedObject.userData.objectType) {
+          showObjectInfo(tappedObject.userData.objectType);
+          return;
+        }
+      }
+      
+      if (!currentLesson || objectsPlaced) return;
+      
+      if (reticle.visible) {
+        // Place the floating objects at the reticle position
+        placeFloatingObjects(currentLesson.arObjects);
+        objectsPlaced = true;
+        setStatus('Look at objects & tap to learn more! 👆');
+      }
+    }
+    
+    // Raycaster to detect which object you're looking at
+    const raycaster = new THREE.Raycaster();
+    const centerScreen = new THREE.Vector2(0, 0); // Center of screen
+    
+    // Find the object you're pointing at (center of screen)
+    function findTargetObject() {
+      if (floatingObjects.length === 0) return null;
+      
+      // Cast ray from camera through center of screen
+      raycaster.setFromCamera(centerScreen, camera);
+      
+      // Check all floating objects and their children
+      const allMeshes = [];
+      floatingObjects.forEach(obj => {
+        obj.traverse(child => {
+          if (child.isMesh) {
+            child.userData.parentObject = obj;
+            allMeshes.push(child);
+          }
+        });
+      });
+      
+      const intersects = raycaster.intersectObjects(allMeshes, false);
+      
+      if (intersects.length > 0) {
+        // Return the parent floating object
+        const hit = intersects[0].object;
+        return hit.userData.parentObject || hit;
+      }
+      
+      return null;
+    }
+    
+    // Show object info card
+    const objectInfoCard = document.getElementById('object-info-card');
+    const objectInfoName = document.getElementById('object-info-name');
+    const objectInfoFact = document.getElementById('object-info-fact');
+    const closeInfoBtn = document.getElementById('close-info-btn');
+    
+    function showObjectInfo(type) {
+      const info = objectInfo[type];
+      if (!info) return;
+      
+      objectInfoName.textContent = info.name;
+      objectInfoFact.textContent = info.fact;
+      objectInfoCard.style.display = 'block';
+    }
+    
+    closeInfoBtn.onclick = () => {
+      objectInfoCard.style.display = 'none';
+    };
+
+    // Render loop
+    function render(timestamp, frame) {
+      if (frame && hitTestSource) {
+        const hitTestResults = frame.getHitTestResults(hitTestSource);
+        if (hitTestResults.length > 0) {
+          const hit = hitTestResults[0];
+          const pose = hit.getPose(xrRefSpace);
+          if (pose) {
+            reticle.visible = true;
+            reticle.matrix.fromArray(pose.transform.matrix);
+          }
+        } else {
+          reticle.visible = false;
+        }
+      }
+
+      // Animate floating objects
+      floatingObjects.forEach((obj, i) => {
+        if (obj.userData.baseY !== undefined) {
+          // Float up and down
+          obj.position.y = obj.userData.baseY + Math.sin(timestamp * 0.002 + obj.userData.floatOffset) * 0.03;
+          // Gentle rotation
+          obj.rotation.y += 0.008;
+        }
+      });
+      
+      // Highlight object when looking at it
+      if (objectsPlaced) {
+        const targetObj = findTargetObject();
+        
+        // Reset all objects to normal
+        floatingObjects.forEach(obj => {
+          obj.traverse(child => {
+            if (child.isMesh && child.material) {
+              child.material.emissive?.setHex(0x000000);
+            }
+          });
+        });
+        
+        // Highlight the target object
+        if (targetObj) {
+          targetObj.traverse(child => {
+            if (child.isMesh && child.material) {
+              if (!child.material.emissive) {
+                child.material.emissive = new THREE.Color(0x000000);
+              }
+              child.material.emissive.setHex(0x444400); // Yellow glow
+            }
+          });
+        }
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    // Create and place floating objects
+    function placeFloatingObjects(objectTypes) {
+      clearFloatingObjects();
+
+      const reticlePos = new THREE.Vector3();
+      reticle.getWorldPosition(reticlePos);
+
+      // Position objects in a circle around the reticle, floating above it
+      const radius = 0.4;
+      const baseHeight = 0.35;
+
+      objectTypes.forEach((type, index) => {
+        const angle = (index / objectTypes.length) * Math.PI * 2;
+        const x = reticlePos.x + Math.cos(angle) * radius;
+        const z = reticlePos.z + Math.sin(angle) * radius;
+        const y = reticlePos.y + baseHeight + index * 0.08;
+
+        let obj;
+
+        // Check if it's a model we need to load
+        if (type === 'armchair') {
+          loader.load('/models/armchair-fixed.glb', (gltf) => {
+            const model = gltf.scene;
+            model.scale.set(0.5, 0.5, 0.5);
+            model.position.set(x, y, z);
+            model.userData.floatOffset = Math.random() * Math.PI * 2;
+            model.userData.baseY = y;
+            model.userData.objectType = type;
+            scene.add(model);
+            floatingObjects.push(model);
+          });
+          return;
+        } else if (type === 'cat') {
+          loader.load('/models/toy-cat.glb', (gltf) => {
+            const model = gltf.scene;
+            model.scale.set(0.25, 0.25, 0.25);
+            model.position.set(x, y, z);
+            model.userData.floatOffset = Math.random() * Math.PI * 2;
+            model.userData.baseY = y;
+            model.userData.objectType = type;
+            scene.add(model);
+            floatingObjects.push(model);
+          });
+          return;
+        }
+
+        // Create simple geometry objects
+        switch(type) {
+          case 'coin':
+          case 'coins':
+            obj = createCoin();
+            break;
+          case 'piggybank':
+            obj = createPiggyBank();
+            break;
+          case 'candy':
+            obj = createCandy();
+            break;
+          case 'lamp':
+            obj = createLamp();
+            break;
+          case 'backpack':
+            obj = createBackpack();
+            break;
+          case 'toy':
+            obj = createToy();
+            break;
+          case 'books':
+            obj = createBooks();
+            break;
+          case 'stickers':
+            obj = createStickers();
+            break;
+          case 'plant':
+            obj = createPlant();
+            break;
+          case 'tools':
+            obj = createTools();
+            break;
+          case 'gamepad':
+            obj = createGamepad();
+            break;
+          default:
+            obj = createCoin();
+        }
+
+        if (obj) {
+          obj.position.set(x, y, z);
+          obj.userData.floatOffset = Math.random() * Math.PI * 2;
+          obj.userData.baseY = y;
+          obj.userData.objectType = type;
+          scene.add(obj);
+          floatingObjects.push(obj);
+        }
+      });
+    }
+
+    function clearFloatingObjects() {
+      floatingObjects.forEach(obj => scene.remove(obj));
+      floatingObjects = [];
+      objectsPlaced = false;
+    }
+
+    // ========== 3D Object Creators ==========
+    function createCoin() {
+      const geometry = new THREE.CylinderGeometry(0.08, 0.08, 0.016, 32);
+      const material = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8, roughness: 0.2 });
+      return new THREE.Mesh(geometry, material);
+    }
+
+    function createPiggyBank() {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 32, 32),
+        new THREE.MeshStandardMaterial({ color: 0xffb6c1 })
+      );
+      body.scale.set(1.2, 1, 1);
+      group.add(body);
+      const snout = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.04, 0.05, 0.05, 16),
+        new THREE.MeshStandardMaterial({ color: 0xffb6c1 })
+      );
+      snout.rotation.z = Math.PI / 2;
+      snout.position.set(0.16, 0, 0);
+      group.add(snout);
+      return group;
+    }
+
+    function createCandy() {
+      const group = new THREE.Group();
+      const wrapper = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.036, 0.036, 0.1, 8),
+        new THREE.MeshStandardMaterial({ color: 0xff6b6b })
+      );
+      wrapper.rotation.z = Math.PI / 2;
+      group.add(wrapper);
+      return group;
+    }
+
+    function createLamp() {
+      const group = new THREE.Group();
+      const base = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.06, 0.07, 0.03, 16),
+        new THREE.MeshStandardMaterial({ color: 0x333333 })
+      );
+      group.add(base);
+      const stem = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.016, 0.2, 8),
+        new THREE.MeshStandardMaterial({ color: 0x333333 })
+      );
+      stem.position.y = 0.11;
+      group.add(stem);
+      const shade = new THREE.Mesh(
+        new THREE.ConeGeometry(0.09, 0.09, 16, 1, true),
+        new THREE.MeshStandardMaterial({ color: 0xfff8dc, side: THREE.DoubleSide, emissive: 0xfff8dc, emissiveIntensity: 0.3 })
+      );
+      shade.position.y = 0.24;
+      group.add(shade);
+      return group;
+    }
+
+    function createBackpack() {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.16, 0.06),
+        new THREE.MeshStandardMaterial({ color: 0x4169e1 })
+      );
+      group.add(body);
+      return group;
+    }
+
+    function createToy() {
+      const group = new THREE.Group();
+      const ball = new THREE.Mesh(
+        new THREE.SphereGeometry(0.07, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0xff4500 })
+      );
+      group.add(ball);
+      return group;
+    }
+
+    function createBooks() {
+      const group = new THREE.Group();
+      const colors = [0x8b4513, 0x228b22, 0x4169e1];
+      colors.forEach((color, i) => {
+        const book = new THREE.Mesh(
+          new THREE.BoxGeometry(0.1, 0.13, 0.024),
+          new THREE.MeshStandardMaterial({ color })
+        );
+        book.position.z = i * 0.028;
+        group.add(book);
+      });
+      return group;
+    }
+
+    function createStickers() {
+      const group = new THREE.Group();
+      const colors = [0xff6b6b, 0x4ecdc4, 0xffe66d, 0x95e1d3];
+      colors.forEach((color, i) => {
+        const sticker = new THREE.Mesh(
+          new THREE.CircleGeometry(0.036, 6),
+          new THREE.MeshStandardMaterial({ color, side: THREE.DoubleSide })
+        );
+        sticker.position.set((i % 2) * 0.08 - 0.04, Math.floor(i / 2) * 0.08 - 0.04, 0);
+        group.add(sticker);
+      });
+      return group;
+    }
+
+    function createPlant() {
+      const group = new THREE.Group();
+      const pot = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.04, 0.07, 16),
+        new THREE.MeshStandardMaterial({ color: 0xcd853f })
+      );
+      group.add(pot);
+      for (let i = 0; i < 4; i++) {
+        const leaf = new THREE.Mesh(
+          new THREE.SphereGeometry(0.04, 8, 8),
+          new THREE.MeshStandardMaterial({ color: 0x228b22 })
+        );
+        leaf.scale.set(1, 1.5, 0.3);
+        leaf.position.set(Math.cos(i * Math.PI / 2) * 0.03, 0.08, Math.sin(i * Math.PI / 2) * 0.03);
+        group.add(leaf);
+      }
+      return group;
+    }
+
+    function createTools() {
+      const group = new THREE.Group();
+      const handle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.01, 0.01, 0.24, 8),
+        new THREE.MeshStandardMaterial({ color: 0x8b4513 })
+      );
+      handle.rotation.z = Math.PI / 4;
+      group.add(handle);
+      return group;
+    }
+
+    function createGamepad() {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(0.16, 0.08, 0.03),
+        new THREE.MeshStandardMaterial({ color: 0x333333 })
+      );
+      group.add(body);
+      return group;
+    }
+
+    // ========== UI Logic ==========
+    function renderLessonList() {
+      lessonList.innerHTML = '';
+      lessons.forEach(lesson => {
+        const isCompleted = completedLessons.includes(lesson.id);
+        const btn = document.createElement('button');
+        btn.className = `lesson-item ${isCompleted ? 'completed' : ''}`;
+        btn.innerHTML = `
+          <span class="lesson-icon">${lesson.icon}</span>
+          <span class="lesson-title">${lesson.title}</span>
+          <span class="lesson-reward">${isCompleted ? '✓' : `+${lesson.coinReward} 🪙`}</span>
+        `;
+        btn.onclick = () => startLesson(lesson);
+        lessonList.appendChild(btn);
+      });
+    }
+
+    function startLesson(lesson) {
+      currentLesson = lesson;
+      objectsPlaced = false;
+      
+      lessonSelect.style.display = 'none';
+      storyCard.style.display = 'block';
+      storyText.textContent = lesson.story;
+      
+      // Render choices
+      choicesEl.innerHTML = '';
+      lesson.choices.forEach((choice, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = choice.text;
+        btn.onclick = () => selectChoice(index);
+        choicesEl.appendChild(btn);
+      });
+      
+      setStatus('Tap on a surface to place story objects!');
+    }
+
+    function selectChoice(index) {
+      const choice = currentLesson.choices[index];
+      const buttons = choicesEl.querySelectorAll('.choice-btn');
+      
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === index) {
+          btn.classList.add(choice.isCorrect ? 'correct' : 'incorrect');
+        }
+      });
+
+      setTimeout(() => {
+        storyCard.style.display = 'none';
+        feedbackCard.style.display = 'block';
+        feedbackEmoji.textContent = choice.isCorrect ? '⭐' : '🤔';
+        feedbackText.textContent = choice.feedback;
+        principleText.textContent = '💡 ' + currentLesson.principle;
+        
+        if (choice.isCorrect) {
+          animateCoins();
+        }
+      }, 400);
+    }
+
+    // Coin sound effect - preload and unlock on first tap
+    const coinSound = new Audio('/sounds/coin-sound.mp3');
+    coinSound.preload = 'auto';
+    coinSound.volume = 1.0;
+    
+    // Unlock audio on first user interaction (required on mobile)
+    let audioUnlocked = false;
+    function unlockAudio() {
+      if (audioUnlocked) return;
+      coinSound.play().then(() => {
+        coinSound.pause();
+        coinSound.currentTime = 0;
+        audioUnlocked = true;
+        console.log('Audio unlocked');
+      }).catch(() => {});
+    }
+    document.addEventListener('touchstart', unlockAudio, { once: true });
+    document.addEventListener('click', unlockAudio, { once: true });
+    
+    function animateCoins() {
+      const coinDisplay = document.getElementById('coin-display');
+      const rect = coinDisplay.getBoundingClientRect();
+      
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          const coin = document.createElement('div');
+          coin.className = 'flying-coin';
+          coin.textContent = '🪙';
+          coin.style.left = `${window.innerWidth / 2 + (Math.random() - 0.5) * 80}px`;
+          coin.style.top = `${window.innerHeight / 2}px`;
+          coin.style.setProperty('--tx', `${rect.left - window.innerWidth / 2 + 20}px`);
+          coin.style.setProperty('--ty', `${rect.top - window.innerHeight / 2}px`);
+          document.body.appendChild(coin);
+          setTimeout(() => coin.remove(), 800);
+        }, i * 80);
+      }
+    }
+
+    const completeCard = document.getElementById('complete-card');
+    const backHomeBtn = document.getElementById('back-home-btn');
+
+    continueBtn.onclick = () => {
+      // Play coin sound
+      coinSound.currentTime = 0;
+      coinSound.volume = 1.0;
+      coinSound.play().catch(e => console.log('Audio play error:', e));
+      
+      coins += currentLesson.coinReward;
+      updateCoins();
+      
+      if (!completedLessons.includes(currentLesson.id)) {
+        completedLessons.push(currentLesson.id);
+        saveProgress();
+      }
+      
+      // Show complete card
+      feedbackCard.style.display = 'none';
+      completeCard.style.display = 'block';
+      clearFloatingObjects();
+    };
+
+    backHomeBtn.onclick = () => {
+      window.location.href = '/';
+    };
+
+    exitBtn.onclick = () => {
+      if (xrSession) {
+        xrSession.end();
+      }
+    };
+
+    // If a lesson was specified in URL, wrap startAR to auto-start that lesson
+    if (preselectedLessonId) {
+      const originalStartAR = startAR;
+      startAR = async function() {
+        await originalStartAR();
+        // After AR starts, immediately start the preselected lesson
+        const lesson = lessons.find(l => l.id === preselectedLessonId);
+        if (lesson) {
+          startLesson(lesson);
+        }
+      };
+    }
+
+    startBtn.onclick = startAR;
+
+    // Initialize
+    initThree();
+    checkXRSupport();
+    updateCoins();
+  </script>
+</body>
+</html>
