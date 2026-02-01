@@ -62,9 +62,10 @@ function ShopItemCard({ item }: ShopItemCardProps) {
             disabled={!canAfford}
             className={`px-4 py-2 rounded-full font-semibold transition-all ${
               canAfford
-                ? 'bg-green-500 text-white hover:bg-green-600 active:scale-95'
+                ? 'text-gray-700 hover:opacity-80 active:scale-95'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
+            style={canAfford ? { backgroundColor: '#A7C7E7' } : {}}
           >
             {canAfford ? 'Buy' : 'Need more coins'}
           </button>

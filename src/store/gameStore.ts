@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export interface ShopItem {
   id: string
@@ -35,7 +36,9 @@ interface GameState {
   completeLesson: (lessonId: string) => void
 }
 
-export const useGameStore = create<GameState>((set, get) => ({
+export const useGameStore = create<GameState>()(
+  persist(
+    (set, get) => ({
   // Start with some coins for demo
   coins: 20,
 
@@ -108,4 +111,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       ? state.completedLessons
       : [...state.completedLessons, lessonId]
   })),
-}))
+    }),
+    {
+      name: 'coinquest-storage',
+    }
+  )
+)

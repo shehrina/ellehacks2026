@@ -52,7 +52,7 @@
       margin-bottom: 2rem;
     }
     #start-btn {
-      background: #22c55e;
+      background: #A7C7E7;
       color: white;
       border: none;
       padding: 16px 32px;
@@ -94,11 +94,14 @@
       background: #6b7280;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 12px 24px;
       border-radius: 50px;
-      font-size: 0.8rem;
+      font-size: 1rem;
+      font-weight: bold;
       pointer-events: auto;
       display: none;
+      min-width: 120px;
+      min-height: 48px;
     }
     #mode-toggle {
       position: absolute;
@@ -129,8 +132,17 @@
     }
     #inventory-items {
       display: flex;
-      justify-content: center;
       gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    #inventory-items::-webkit-scrollbar {
+      height: 4px;
+    }
+    #inventory-items::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
     }
     .inv-item {
       display: flex;
@@ -138,6 +150,7 @@
       align-items: center;
       padding: 12px 16px;
       background: rgba(255,255,255,0.2);
+      flex-shrink: 0;
       border-radius: 16px;
       border: 3px solid transparent;
       pointer-events: auto;
@@ -145,7 +158,7 @@
       transition: all 0.2s;
     }
     .inv-item.selected {
-      background: #22c55e;
+      background: #A7C7E7;
       border-color: white;
       transform: scale(1.1);
     }
@@ -243,15 +256,11 @@
       <div id="inventory">
         <p id="inventory-label">Tap an item, then tap the floor to place:</p>
         <div id="inventory-items">
-          <div class="inv-item" data-id="armchair" data-model="/models/armchair-fixed.glb">
-            <span class="icon">🪑</span>
-            <span class="name">Armchair</span>
-          </div>
-          <div class="inv-item" data-id="cat" data-model="/models/toy-cat.glb">
-            <span class="icon">🐱</span>
-            <span class="name">Toy Cat</span>
-          </div>
+          <!-- Items will be populated dynamically based on owned items -->
         </div>
+        <p id="no-items-msg" style="display: none; text-align: center; color: #fbbf24; margin-top: 12px;">
+          No items yet! Buy items from the Shop first.
+        </p>
       </div>
     </div>
   </div>
@@ -280,7 +289,6 @@
     const clearBtn = document.getElementById('clear-btn');
     const modeToggle = document.getElementById('mode-toggle');
     const statusEl = document.getElementById('status');
-    const inventoryItems = document.querySelectorAll('.inv-item');
     const inventoryLabel = document.getElementById('inventory-label');
     const scaleControls = document.getElementById('scale-controls');
     const scaleValue = document.getElementById('scale-value');
@@ -294,6 +302,7 @@
     let selectedObject = null; // Currently selected placed object for editing
     let isDragging = false;
     let isPlacing = false; // Guard against double placement
+    let uiCooldown = false; // Prevent placement right after UI interaction
     
     // Three.js
     let scene, camera, renderer, reticle, loader;
@@ -301,6 +310,78 @@
     let hitTestSourceRequested = false;
     let currentSession = null;
     let raycaster = new THREE.Raycaster();
+
+    // All available items with their display info
+    const allItems = {
+      'armchair': { icon: '🪑', name: 'Armchair', model: '/models/armchair-fixed.glb' },
+      'toy-cat': { icon: '🐱', name: 'Toy Cat', model: '/models/toy-cat.glb' },
+      'plant': { icon: '🪴', name: 'Plant', model: '/models/plant.glb' },
+      'warrior-toy': { icon: '⚔️', name: 'Warrior', model: '/models/warrior-toy-fixed.glb' },
+      'bed': { icon: '🛏️', name: 'Bed', model: '/models/bed.glb' },
+      'bookshelf': { icon: '📚', name: 'Shelf', model: '/models/bookshelf.glb' },
+      'dinosaur': { icon: '🦖', name: 'Dino', model: '/models/dinosaur.glb' },
+    };
+
+    // Load owned items from localStorage and populate inventory
+    function populateInventory() {
+      const inventoryContainer = document.getElementById('inventory-items');
+      const noItemsMsg = document.getElementById('no-items-msg');
+      inventoryContainer.innerHTML = '';
+      
+      // Read from zustand's persisted storage
+      let ownedItemIds = [];
+      try {
+        const storage = localStorage.getItem('coinquest-storage');
+        if (storage) {
+          const data = JSON.parse(storage);
+          if (data.state && data.state.ownedItems) {
+            // Get unique item IDs (user may own multiple of same item)
+            ownedItemIds = [...new Set(data.state.ownedItems.map(item => item.itemId))];
+          }
+        }
+      } catch (e) {
+        console.error('Error reading owned items:', e);
+      }
+      
+      if (ownedItemIds.length === 0) {
+        noItemsMsg.style.display = 'block';
+        return;
+      }
+      
+      noItemsMsg.style.display = 'none';
+      
+      // Create inventory items for owned items only
+      ownedItemIds.forEach(itemId => {
+        const itemInfo = allItems[itemId];
+        if (itemInfo) {
+          const div = document.createElement('div');
+          div.className = 'inv-item pointer-events';
+          div.dataset.id = itemId;
+          div.dataset.model = itemInfo.model;
+          div.innerHTML = `
+            <span class="icon">${itemInfo.icon}</span>
+            <span class="name">${itemInfo.name}</span>
+          `;
+          inventoryContainer.appendChild(div);
+        }
+      });
+      
+      // Re-attach click listeners to new items
+      attachInventoryListeners();
+    }
+    
+    function attachInventoryListeners() {
+      const inventoryItems = document.querySelectorAll('.inv-item');
+      inventoryItems.forEach(item => {
+        item.addEventListener('click', () => {
+          if (mode !== 'place') return;
+          inventoryItems.forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          selectedItem = item.dataset.model;
+          setStatus(`Selected ${item.querySelector('.name').textContent}. Tap to place.`);
+        });
+      });
+    }
 
     // Check WebXR support
     async function checkSupport() {
@@ -425,6 +506,9 @@
     }
 
     function onSelect(event) {
+      // Skip if UI was just clicked
+      if (uiCooldown) return;
+      
       if (mode === 'place') {
         // Place mode: place new objects
         if (reticle.visible && selectedItem) {
@@ -499,13 +583,21 @@
       // Convert to absolute URL
       const absoluteUrl = new URL(modelPath, window.location.href).href;
       
+      // Custom scales for different models (some GLBs are huge)
+      const modelScales = {
+        '/models/bed.glb': 0.0003,
+        '/models/bookshelf.glb': 0.003,
+        '/models/dinosaur.glb': 0.02,
+      };
+      const customScale = modelScales[modelPath] || 1;
+      
       try {
         const gltf = await loader.loadAsync(absoluteUrl);
         const model = gltf.scene.clone();
 
         // Position at reticle
         model.position.copy(pos);
-        model.scale.set(1, 1, 1);
+        model.scale.set(customScale, customScale, customScale);
 
         // Make sure model is visible
         model.traverse((child) => {
@@ -521,7 +613,7 @@
         });
 
         scene.add(model);
-        const objData = { model, modelPath, scale: 1 };
+        const objData = { model, modelPath, scale: customScale };
         placedObjects.push(objData);
         updateClearBtn();
 
@@ -598,6 +690,9 @@
     }
 
     function clearAll() {
+      uiCooldown = true;
+      setTimeout(() => { uiCooldown = false; }, 300);
+      
       placedObjects.forEach(obj => scene.remove(obj.model));
       placedObjects = [];
       selectedObject = null;
@@ -613,7 +708,7 @@
         modeToggle.classList.add('edit-mode');
         inventoryLabel.textContent = 'Tap near an object to select, then drag to move:';
         // Deselect inventory item
-        inventoryItems.forEach(i => i.classList.remove('selected'));
+        document.querySelectorAll('.inv-item').forEach(i => i.classList.remove('selected'));
         selectedItem = null;
         setStatus('Edit mode: Tap near an object to select it.');
       } else {
@@ -634,15 +729,15 @@
     function scaleSelected(factor) {
       if (!selectedObject) return;
       
-      selectedObject.scale *= factor;
-      // Clamp scale
-      selectedObject.scale = Math.max(0.1, Math.min(5, selectedObject.scale));
+      // Get current scale from the model
+      const currentScale = selectedObject.model.scale.x;
+      const newScale = currentScale * factor;
       
-      selectedObject.model.scale.set(
-        selectedObject.scale,
-        selectedObject.scale,
-        selectedObject.scale
-      );
+      // Clamp to reasonable bounds (allow very small for huge models)
+      const clampedScale = Math.max(0.0005, Math.min(10, newScale));
+      
+      selectedObject.model.scale.set(clampedScale, clampedScale, clampedScale);
+      selectedObject.scale = clampedScale;
       
       updateScaleControls();
     }
@@ -650,28 +745,15 @@
     // Event listeners
     startBtn.addEventListener('click', startAR);
     exitBtn.addEventListener('click', () => currentSession?.end());
-    clearBtn.addEventListener('click', clearAll);
-    modeToggle.addEventListener('click', toggleMode);
-    scaleUpBtn.addEventListener('click', () => scaleSelected(1.2));
-    scaleDownBtn.addEventListener('click', () => scaleSelected(0.8));
-
-    inventoryItems.forEach(item => {
-      item.addEventListener('click', () => {
-        if (mode !== 'place') {
-          toggleMode(); // Switch to place mode
-        }
-        // Deselect all
-        inventoryItems.forEach(i => i.classList.remove('selected'));
-        // Select this one
-        item.classList.add('selected');
-        selectedItem = item.dataset.model;
-        setStatus(`${item.querySelector('.name').textContent} selected. Tap floor to place.`);
-      });
-    });
+    clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearAll(); });
+    modeToggle.addEventListener('click', (e) => { e.stopPropagation(); toggleMode(); });
+    scaleUpBtn.addEventListener('click', (e) => { e.stopPropagation(); scaleSelected(1.2); });
+    scaleDownBtn.addEventListener('click', (e) => { e.stopPropagation(); scaleSelected(0.8); });
 
     // Initialize
     initThree();
     checkSupport();
+    populateInventory(); // Load owned items from shop
   </script>
 </body>
 </html>

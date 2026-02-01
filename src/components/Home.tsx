@@ -64,7 +64,7 @@ export function Home() {
         </button>
 
         <button
-          onClick={() => navigate('/ar')}
+          onClick={() => window.location.href = '/webxr-ar.html'}
           className="flex-1 bg-[#C3B1E1] hover:bg-[#b2a0d0] border-b-4 border-[#a18fbf] rounded-2xl p-4 flex items-center justify-center gap-3 shadow-lg transition-transform active:scale-95 group"
         >
           <div className="bg-white/30 p-1.5 rounded-full group-hover:scale-110 transition-transform">

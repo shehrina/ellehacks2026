@@ -1,46 +1,26 @@
-import { useState } from 'react'
 import { lessons } from '../data/lessons'
 import { useGameStore } from '../store/gameStore'
-import { LessonCard } from './LessonCard'
 import { FaBook, FaGraduationCap, FaCheckCircle } from 'react-icons/fa'
 
 export function Lessons() {
   const completedLessons = useGameStore((state) => state.completedLessons)
-  const [currentLessonIndex, setCurrentLessonIndex] = useState<number | null>(null)
 
   const availableLessons = lessons.filter(
     (l) => !completedLessons.includes(l.id)
   )
 
-  const handleLessonComplete = () => {
-    setCurrentLessonIndex(null)
-  }
-
-  // Show lesson card if one is selected
-  if (currentLessonIndex !== null && availableLessons[currentLessonIndex]) {
-    return (
-      <div className="p-4 pb-24">
-        <button
-          onClick={() => setCurrentLessonIndex(null)}
-          className="mb-4 text-gray-500 hover:text-gray-700"
-        >
-          ← Back to lessons
-        </button>
-        <LessonCard
-          lesson={availableLessons[currentLessonIndex]}
-          onComplete={handleLessonComplete}
-        />
-      </div>
-    )
+  // Open AR lesson with specific lesson ID
+  const openARLesson = (lessonId: string) => {
+    window.location.href = `/ar-lessons.html?lesson=${lessonId}`
   }
 
   return (
     <div className="p-4 pb-24">
       <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
         <FaBook />
-        Learn & Earn
+        Quests
       </h2>
-      <p className="text-gray-500 mb-6">Complete lessons to earn coins!</p>
+      <p className="text-gray-500 mb-6">Complete quests to earn coins!</p>
 
       {availableLessons.length === 0 ? (
         <div className="text-center py-12">
@@ -48,7 +28,7 @@ export function Lessons() {
             <FaGraduationCap className="text-6xl text-blue-500" />
           </div>
           <h3 className="text-xl font-bold text-gray-800 mb-2">
-            All lessons completed!
+            All quests completed!
           </h3>
           <p className="text-gray-500">
             You've learned all the money basics. Great job!
@@ -59,14 +39,14 @@ export function Lessons() {
           {availableLessons.map((lesson, index) => (
             <button
               key={lesson.id}
-              onClick={() => setCurrentLessonIndex(index)}
+              onClick={() => openARLesson(lesson.id)}
               className="w-full bg-white rounded-2xl p-4 shadow-lg text-left hover:shadow-xl transition-all active:scale-98 border-2 border-transparent hover:border-blue-200"
             >
               <div className="flex items-center gap-4">
                 <FaBook className="text-4xl text-blue-500" />
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-800 mb-1">
-                    Lesson {completedLessons.length + index + 1}
+                    Quest {completedLessons.length + index + 1}
                   </h3>
                   <p className="text-sm text-gray-500 line-clamp-2">
                     {lesson.story.substring(0, 60)}...
