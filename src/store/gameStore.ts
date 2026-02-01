@@ -18,9 +18,12 @@ export interface OwnedItem {
 
 interface GameState {
   // Piggy Bank (all coins stored here)
+  coins: number
   savedCoins: number
   addCoins: (amount: number) => void
   spendCoins: (amount: number) => boolean
+  saveCoins: (amount: number) => void
+  withdrawCoins: (amount: number) => boolean
   growSavings: () => void // Simulates interest
 
   // Inventory

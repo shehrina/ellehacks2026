@@ -18,7 +18,7 @@ export function TopNav({ onNavigate }: TopNavProps) {
 
                 {/* Center: Title */}
                 <div className="absolute left-1/2 transform -translate-x-1/2">
-                    <span className="font-bold text-3xl text-gray-900 tracking-tight" style={{ fontFamily: 'Fredoka, sans-serif' }}>CoinQuest</span>
+                    <span className="font-bold text-3xl text-gray-900 tracking-wide" style={{ fontFamily: 'Fredoka, sans-serif' }}>Coin Quest</span>
                 </div>
 
                 {/* Right: Coins & Action */}
