@@ -8,11 +8,9 @@ TBD (see naming options below)
 
 ## 1. Overview
 
-This product is a **web-based AR learning experience for kids** that teaches core money tradeoffs — *spend, save, and grow* — through short, playful interactions.
+This product is a **web-based AR learning experience for kids** that teaches core money tradeoffs — *spend, save, and see it grow* — through immersive AR interactions and a gamified High Yield Savings Account (HYSA).
 
-Kids earn coins by completing micro “choose-your-path” lessons, decide how to use those coins in a simple shop, and place purchased items into their real-world space using AR. The experience is designed to feel magical and intuitive for kids, while remaining **credible, calm, and demo-safe** for judges and sponsors.
-
-The MVP is optimized for a **live hackathon demo**: fast to understand, visually impressive, and technically reliable.
+Kids earn coins by completing **AR-based lessons** where they solve problems using interactive elements in their real-world space. They then decide how to use those coins: spending them in a simple shop to build their AR room, or saving them in a High Yield Piggy Bank to watch their wealth grow over time.
 
 ---
 
@@ -66,26 +64,20 @@ Clean, calming pastels that build trust and make financial concepts approachable
 
 ## 4. Core Experience Loop (MVP)
 
-1. Open the web app on mobile
-2. Enter **AR Hunt Mode**
-
-   * Camera opens
-   * A custom image marker becomes the “Money Zone”
-   * Three floating coins appear around the marker
-3. Tap a coin to collect it
-4. A **lesson modal** appears
-
-   * Short story (2–3 lines)
-   * Choice A / Choice B
-5. Coin-drop animation into piggy bank
-6. Wallet / piggy values update
-7. Repeat until all 3 coins are collected
-9. **Shop unlocks**
-
-   * Kid chooses to spend or save
-10. **AR Placement**
-
-* Purchased item can be placed into the real world using AR
+1. Open the web app on mobile.
+2. Enter **AR Lesson Mode**:
+   * Camera opens, plane detection finds a surface.
+   * Interactive elements appear (e.g., a broken backpack or an enticing candy shop).
+   * Kid interacts with the AR elements to make a choice.
+3. Earn coins based on the outcome.
+4. Coins are added to the **Wallet**.
+5. The kid chooses to:
+   * **Spend**: Go to the Shop and buy 3D items.
+   * **Save**: Move coins to the **HYSA Piggy Bank** to earn interest (Grow).
+6. **AR Room Builder**:
+   * Enter the AR Room.
+   * Select purchased items from the inventory.
+   * Place **multiple items** in the same real-world frame to decorate the space.
 
 This entire loop is designed to complete in **under 2 minutes** during a demo.
 
@@ -95,9 +87,10 @@ This entire loop is designed to complete in **under 2 minutes** during a demo.
 
 ### Structure
 
-* Lessons are **choose-your-path micro stories**
-* Both choices are valid
-* No moral framing
+* Lessons are **AR-based micro stories**
+* Interactive 3D elements representing the scenario are placed in the user's space.
+* Kids make choices by interacting with these AR objects.
+* Both choices are valid, focusing on learning tradeoffs.
 
 ### Emphasis
 
@@ -110,9 +103,9 @@ This entire loop is designed to complete in **under 2 minutes** during a demo.
 
 ### Concepts
 
-* **Wallet:** spendable coins
-* **Piggy:** locked savings
-* **Grow:** value increases when money is left alone
+* **Wallet:** Spendable coins for immediate purchases in the Shop.
+* **Piggy Bank (HYSA):** A High Yield Savings Account where money is locked but earns interest over time.
+* **Grow:** The "High Yield" component where savings increase automatically at a visible rate.
 
 No real investing concepts are introduced.
 
@@ -154,10 +147,10 @@ No real investing concepts are introduced.
 
 ## 8. AR Placement
 
-* Purchased items can be placed into the real world
-* Tap to place
-* Drag to reposition
-* Pinch to scale (nice-to-have)
+* Multiple items from the inventory can be placed simultaneously in the same frame.
+* Tap the floor/surface to place the selected 3D item.
+* Drag to reposition items (implemented via WebXR touch interactions).
+* Clear all items to start fresh.
 
 ---
 
@@ -172,27 +165,21 @@ No real investing concepts are introduced.
 ## 10. AR Technology Stack (Final)
 
 ### Stack
-
 | Layer        | Technology           | Purpose                       |
 | ------------ | -------------------- | ----------------------------- |
-| 3D Viewer    | `<model-viewer>`     | Render and preview GLB models |
-| AR (iOS)     | Apple Quick Look     | Native AR + surface detection |
-| AR (Android) | WebXR / Scene Viewer | In-browser AR                 |
+| 3D Engine    | Three.js             | Core 3D rendering and scene management |
+| WebXR        | WebXR Device API     | Hit-testing and immersive AR sessions |
+| AR (iOS)     | WebXR / Model Viewer | Browser-based AR (with WebXR support) |
+| AR (Android) | WebXR / Scene Viewer | Native-like in-browser AR     |
 | 3D Format    | GLB (glTF)           | Cross-platform standard       |
 
 ---
 
 ### How AR Works
 
-* `<model-viewer>` shows a rotatable 3D preview
-* User taps **View in AR**
-* OS handles AR placement and tracking
-* No custom AR code is written
-
-**Accepted tradeoff:**
-
-* Limited UI overlays during AR on iOS
-* Chosen for maximum reliability and demo safety
+* The app utilizes the **WebXR Device API** for persistent AR scenes.
+* **Hit-testing** is used to detect surfaces (floors, tables) for accurate placement.
+* Unlike standard Quick Look, this allows for **multiple models** to be rendered in the same session, enabling users to "decorate" their real-world space.
 
 ---
 
@@ -200,12 +187,12 @@ No real investing concepts are introduced.
 
 The MVP is considered complete if:
 
-* AR launches reliably on iOS and Android
-* 3 coins can be collected
-* Each coin triggers a lesson and reward animation
-* At least one item can be purchased
-* Item can be placed into AR
-* Demo runs end-to-end without explanation
+* AR sessions launch reliably with plane detection.
+* Interactive AR lessons trigger upon starting a module.
+* Kids can earn coins through AR-based decision making.
+* Multiple items can be purchased and placed in the same AR frame.
+* HYSA logic correctly calculates and displays growth in the Piggy Bank.
+* Demo runs end-to-end without explanation.
 
 ---
 
