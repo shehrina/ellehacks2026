@@ -67,10 +67,10 @@ export function Lessons() {
       {/* Completed lessons */}
       {completedLessons.length > 0 && (
         <div className="mt-8">
-          <h3 className="text-lg font-bold text-gray-600 mb-3 flex items-center gap-2">
+          {/* <h3 className="text-lg font-bold text-gray-600 mb-3 flex items-center gap-2">
             <FaCheckCircle className="text-green-500" />
             Completed
-          </h3>
+          </h3> */}
           <div className="space-y-2">
             {lessons
               .filter((l) => completedLessons.includes(l.id))
