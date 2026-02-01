@@ -45,10 +45,6 @@ function ShopItemCard({ item }: ShopItemCardProps) {
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-bold text-gray-800">{item.name}</h3>
-          <span className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${categoryColors[item.category]}`}>
-            {categoryLabels[item.category].icon}
-            {categoryLabels[item.category].text}
-          </span>
         </div>
         
         <div className="flex justify-between items-center mt-4">

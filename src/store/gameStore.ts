@@ -6,7 +6,6 @@ export interface ShopItem {
   name: string
   price: number
   modelPath: string
-  category: 'want' | 'need' | 'upgrade'
   thumbnail?: string
 }
 
