@@ -45,7 +45,7 @@ export function Home() {
         </div>
 
         <p className="text-sm font-medium tracking-wide mb-4" style={{ color: 'var(--text-secondary)' }}>
-          Save it. Spend it. See it grow.
+          Save it. Spend it. See it.
         </p>
       </div>
 
@@ -60,11 +60,10 @@ export function Home() {
           {/* Shine overlay */}
           <div className="absolute top-0 left-0 w-full h-[50%] bg-white/10 pointer-events-none" />
 
-          {/* Custom Golden Star Coin Icon */}
-          <div className="w-7 h-7 rounded-full bg-gradient-to-b from-[#FFE62D] via-[#FFD700] to-[#E5C100] shadow-[0_2px_4px_rgba(0,0,0,0.2),inset_0_-1px_2px_rgba(0,0,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.8)] flex items-center justify-center border-2 border-[#FFD700] shrink-0 transform group-hover:rotate-[20deg] transition-transform duration-500 box-border">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-[#B4860B] drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z" />
-            </svg>
+          {/* W Token Coin Icon */}
+          <div className="w-7 h-7 rounded-full bg-gradient-to-b from-[#FFD700] to-[#E5C100] shadow-[0_2px_4px_rgba(0,0,0,0.2),inset_0_-1px_2px_rgba(0,0,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.8)] flex items-center justify-center border-2 border-[#FFD700] shrink-0 transform group-hover:rotate-[20deg] transition-transform duration-500 relative overflow-hidden">
+            <span className="font-black text-sm text-[#B4860B]" style={{ fontFamily: 'Fredoka, sans-serif' }}>W</span>
+            <div className="absolute -top-1 -left-1 w-3 h-3 bg-white/40 blur-sm rounded-full pointer-events-none" />
           </div>
 
           <span className="font-bold text-gray-700 text-sm drop-shadow-sm font-fredoka tracking-wide whitespace-nowrap">Earn Coins</span>
@@ -169,11 +168,9 @@ export function Home() {
               </span>
               <span className="text-lg font-bold flex items-center gap-1.5" style={{ color: 'var(--dark-sage)' }}>
                 {coins}
-                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-                  <circle cx="12" cy="12" r="10" fill="#FFD700" stroke="#B4860B" strokeWidth="1.5" />
-                  <circle cx="12" cy="12" r="7" fill="#FFA500" opacity="0.3" />
-                  <text x="12" y="16" textAnchor="middle" fill="#B4860B" fontSize="12" fontWeight="bold">$</text>
-                </svg>
+                <div className="w-5 h-5 rounded-full bg-gradient-to-b from-[#FFD700] to-[#E5C100] shadow-sm flex items-center justify-center border border-[#FFD700] relative overflow-hidden">
+                  <span className="font-black text-[10px] text-[#B4860B]" style={{ fontFamily: 'Fredoka, sans-serif' }}>W</span>
+                </div>
               </span>
             </div>
           </div>

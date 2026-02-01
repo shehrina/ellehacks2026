@@ -33,6 +33,9 @@ interface GameState {
   // Lessons
   completedLessons: string[]
   completeLesson: (lessonId: string) => void
+
+  // Reset
+  resetProgress: () => void
 }
 
 export const useGameStore = create<GameState>()(
@@ -107,11 +110,19 @@ export const useGameStore = create<GameState>()(
       // Lessons
       completedLessons: [],
 
-      completeLesson: (lessonId) => set((state) => ({
-        completedLessons: state.completedLessons.includes(lessonId)
-          ? state.completedLessons
-          : [...state.completedLessons, lessonId]
-      })),
+  completeLesson: (lessonId) => set((state) => ({
+    completedLessons: state.completedLessons.includes(lessonId)
+      ? state.completedLessons
+      : [...state.completedLessons, lessonId]
+  })),
+
+  // Reset all progress
+  resetProgress: () => set({
+    coins: 20,
+    savedCoins: 0,
+    ownedItems: [],
+    completedLessons: [],
+  }),
     }),
     {
       name: 'coinquest-storage',

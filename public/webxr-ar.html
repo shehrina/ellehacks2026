@@ -77,19 +77,22 @@
     }
     #exit-btn {
       position: absolute;
-      top: 16px;
+      top: 40px;
       right: 16px;
       background: #ef4444;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 14px 24px;
       border-radius: 50px;
       font-weight: bold;
+      font-size: 1rem;
       pointer-events: auto;
+      min-width: 100px;
+      min-height: 48px;
     }
     #clear-btn {
       position: absolute;
-      top: 64px;
+      top: 160px;
       right: 16px;
       background: #6b7280;
       color: white;
@@ -227,15 +230,15 @@
   <div id="overlay">
     <!-- Start screen -->
     <div id="start-screen">
-      <h1>🏠 AR Room Builder</h1>
-      <p>Place furniture in your real room!<br>Requires ARCore-compatible Android + Chrome.</p>
+      <h1>AR Room</h1>
+      <p>Place furniture in your real room!</p>
       <button id="start-btn" disabled>Checking AR support...</button>
     </div>
 
     <!-- Not supported message -->
     <div id="not-supported">
       <h2>WebXR AR Not Supported</h2>
-      <p>This feature requires an ARCore-compatible Android device with Chrome.</p>
+      <p>This feature requires an ARCore-compatible device with Chrome.</p>
       <a href="/ar-test.html">Try Single-Object AR Instead</a>
     </div>
 
@@ -483,16 +486,14 @@
       currentSession = null;
       hitTestSource = null;
       hitTestSourceRequested = false;
-      arUI.classList.add('hidden');
-      startScreen.classList.remove('hidden');
-      reticle.visible = false;
       
       // Clear placed objects from scene
       placedObjects.forEach(obj => scene.remove(obj.model));
       placedObjects = [];
       selectedObject = null;
-      updateClearBtn();
-      updateScaleControls();
+      
+      // Redirect to home page
+      window.location.href = '/';
     }
 
     function onSelectStart(event) {
@@ -744,7 +745,12 @@
 
     // Event listeners
     startBtn.addEventListener('click', startAR);
-    exitBtn.addEventListener('click', () => currentSession?.end());
+    exitBtn.addEventListener('click', () => {
+      if (currentSession) {
+        currentSession.end();
+      }
+      window.location.href = '/';
+    });
     clearBtn.addEventListener('click', (e) => { e.stopPropagation(); clearAll(); });
     modeToggle.addEventListener('click', (e) => { e.stopPropagation(); toggleMode(); });
     scaleUpBtn.addEventListener('click', (e) => { e.stopPropagation(); scaleSelected(1.2); });

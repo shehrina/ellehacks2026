@@ -34,8 +34,11 @@ export function PiggyBank() {
       {/* Piggy Bank Visual */}
       <div className={`bg-gradient-to-b from-pink-100 to-pink-200 rounded-3xl p-8 mb-6 text-center transition-transform ${showGrowAnimation ? 'scale-110' : ''}`}>
         <div className="text-8xl mb-4">🐷</div>
-        <div className="text-4xl font-bold text-pink-700 mb-2">
-          {savedCoins} 🪙
+        <div className="text-4xl font-bold text-pink-700 mb-2 flex items-center justify-center gap-2">
+          {savedCoins}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-b from-[#FFD700] to-[#E5C100] shadow-sm flex items-center justify-center border border-[#FFD700] relative overflow-hidden">
+            <span className="font-black text-lg text-[#B4860B]" style={{ fontFamily: 'Fredoka, sans-serif' }}>W</span>
+          </div>
         </div>
         <p className="text-pink-600 text-sm">
           Money grows when you don't touch it!
@@ -81,7 +84,7 @@ export function PiggyBank() {
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
-          Save 💰
+          Save
         </button>
         <button
           onClick={handleWithdraw}
@@ -92,7 +95,7 @@ export function PiggyBank() {
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
-          Withdraw 🪙
+          Withdraw
         </button>
       </div>
 
@@ -106,7 +109,7 @@ export function PiggyBank() {
             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
         }`}
       >
-        ⏩ Fast Forward 24h (Watch it grow!)
+        Fast Forward 24h (Watch it grow!)
       </button>
       
       <p className="text-center text-gray-400 text-xs mt-2">

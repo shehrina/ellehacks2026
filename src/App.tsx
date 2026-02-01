@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Navigation } from './components/Navigation'
 import { TopNav } from './components/TopNav'
@@ -7,9 +7,23 @@ import { Shop } from './components/Shop'
 import { ARRoom } from './components/ARRoom'
 import { PiggyBank } from './components/PiggyBank'
 import { Lessons } from './components/Lessons'
+import { useGameStore } from './store/gameStore'
 
 
 function App() {
+  const resetProgress = useGameStore((state) => state.resetProgress)
+  
+  // One-time reset for demo - remove this after testing
+  useEffect(() => {
+    const hasReset = localStorage.getItem('coinquest-demo-reset-v2')
+    if (!hasReset) {
+      resetProgress()
+      localStorage.setItem('coinquest-demo-reset-v2', 'true')
+      // Also clear old AR lesson storage
+      localStorage.removeItem('arLessonCoins')
+      localStorage.removeItem('arCompletedLessons')
+    }
+  }, [])
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#f8fbff] via-[#f0f9ff] to-[#f8fbff]">
       {/* Enhanced Multi-shaded Background Glare Effects */}
